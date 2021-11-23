@@ -36,12 +36,24 @@ class BaseSyncJob(AbstractJob):
     def __init__(self, **kwargs):
         self.data = JobData(**kwargs)
         self.interval = self.data.interval or self.INTERVAL
+        if self.interval is None:
+            raise ValueError("Interval is not specified")
+        self.execute = self.data.execute or self.execute
+        if self.execute is None:
+            raise ValueError("Execute is not specified")
         self.blocker = self.BLOCKER_CLASS()
 
+    def _execute(self):
+        self.execute(*self.data.args, **self.data.kwargs)
+
     def run(self):
-        execute = self.data.execute or self.execute
+        self._execute()
         while not self.blocker.wait(self.interval.total_seconds()):
-            execute(*self.data.args, **self.data.kwargs)
+            self._execute()
+
+    @abstractmethod
+    def stop(self):
+        raise NotImplementedError
 
 
 class ProcessJob(BaseSyncJob, Process):

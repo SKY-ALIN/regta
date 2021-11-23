@@ -6,6 +6,9 @@ from regta import ThreadJob
 class {{ class_name }}(ThreadJob):
     INTERVAL = timedelta(seconds=3)
 
-    def execute(self):  # function which is called every 3 seconds
-        print(f"Hello world from {self.__class__.__name__}!")
+    def execute(self):  # function is called every 3 seconds
+        print(
+            f"Hello from {self.__class__.__name__}! "
+            f"This message is displayed every {self.INTERVAL.seconds} seconds."
+        )
 

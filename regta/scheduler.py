@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
+import asyncio
 from typing import Union, List
-from threading import Thread
 from multiprocessing import Process
 import signal
 import time
@@ -25,22 +25,6 @@ class AbstractScheduler(ABC):
 
 class BaseScheduler(AbstractScheduler):
     pass
-
-
-class AsyncScheduler(BaseScheduler, Thread):
-    async_jobs: List[AsyncJob] = []
-
-    def add_job(self, job: AsyncJob):
-        if isinstance(job, AsyncJob):
-            self.async_jobs.append(job)
-        else:
-            raise IncorrectJobType(job, self)
-
-    def start(self, block: bool):
-        pass
-
-    def stop(self):
-        self.join()
 
 
 class SyncScheduler(BaseScheduler):
@@ -91,6 +75,28 @@ class SyncScheduler(BaseScheduler):
     def stop(self):
         self.__stop_jobs(self.thread_jobs)
         self.__stop_jobs(self.process_jobs)
+
+
+class AsyncScheduler(BaseScheduler, Process):
+    async_jobs: List[AsyncJob] = []
+
+    def __init__(self):
+        Process.__init__(self)
+        super(AsyncScheduler, self).__init__()
+        self.loop = asyncio.new_event_loop()
+
+    def add_job(self, job: AsyncJob):
+        if isinstance(job, AsyncJob):
+            self.async_jobs.append(job)
+        else:
+            raise IncorrectJobType(job, self)
+
+    def start(self, block: bool):
+        pass
+
+    def stop(self):
+        self.join()
+        self.terminate()
 
 
 class Scheduler(BaseScheduler):

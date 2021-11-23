@@ -23,9 +23,16 @@ def main(): pass
 
 
 def show_jobs_info(jobs: JobListHint, path: Path = None, verbose: bool = False):
-    count = click.style(len(jobs), fg='green')
-    path_str = f" at {click.style(f'{path}/', fg='green')}" if path is not None else ""
-    click.echo(f"[{count}] jobs were found{path_str}{':' if verbose else '.'}")
+    count = click.style(
+        len(jobs),
+        fg='green' if len(jobs) > 0 else 'red'
+    )
+    path_str = (
+        f" at {click.style(f'{path}/', fg='green')}"
+        if path is not None
+        else ""
+    )
+    click.echo(f"[{count}] jobs were found{path_str}{':' if verbose and len(jobs) > 0 else '.'}")
     if verbose:
         for job in jobs:
             click.echo(f"* {click.style(job.__name__, fg='blue')}\t at {job.__module__}")
@@ -53,6 +60,9 @@ def load_jobs(path: Path) -> JobListHint:
 
 
 def start_jobs(jobs: JobListHint):
+    if not jobs:
+        return
+
     scheduler = SyncScheduler()
     for job in jobs:
         scheduler.add_job(job())
