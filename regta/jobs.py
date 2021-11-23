@@ -6,6 +6,8 @@ from typing import Callable, Union, Type
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
 
+from .enums import JobTypes
+
 
 class AbstractJob(ABC):
     INTERVAL: timedelta = NotImplementedError
@@ -107,3 +109,9 @@ class AsyncJob(BaseJob):
 
     async def stop(self): pass
 
+
+jobs_classes = {
+    JobTypes.ASYNC: AsyncJob,
+    JobTypes.THREAD: ThreadJob,
+    JobTypes.PROCESS: ProcessJob,
+}

@@ -52,7 +52,7 @@ If you do not want to use the provided OOP,
 and you would like to easily reuse functions you have already written, 
 you can simply describe them as a list and pass them to the `regta run` command as `--list` param:
 ```shell
-$ regta run --list jobs.main:TASKS
+$ regta run --list jobs.main:JOBS
 > [1] jobs were found.
 > Hello, User!  # code of job
 .  .  .
@@ -62,9 +62,9 @@ $ regta run --list jobs.main:TASKS
 def your_function(name):
     print(f"Hello, {name}!")
 
-TASKS = [
+JOBS = [
     {
-        "callable": your_function,
+        "thread": your_function,
         "kwargs": {"name": "User"},
         "interval": {
             "minutes": 5,

@@ -4,9 +4,9 @@ from regta import AsyncJob
 
 
 class {{ class_name }}(AsyncJob):
-    INTERVAL = timedelta(seconds=3)
+    INTERVAL = timedelta(seconds={{ seconds }})
 
-    async def execute(self):  # function is called every 3 seconds
+    async def execute(self):  # function is called every {{ seconds }} seconds
         print(
             f"Hello from {self.__class__.__name__}! "
             f"This message is displayed every {self.INTERVAL.seconds} seconds."
