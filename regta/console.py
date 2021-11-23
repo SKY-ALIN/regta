@@ -4,7 +4,7 @@ See details on the homepage at https://github.com/SKY-ALIN/regta/"""
 from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
 import inspect
-from typing import List, Union
+from typing import List, Union, Type
 
 import click
 
@@ -12,6 +12,9 @@ from . import __version__
 from .enums import JobTypes, job_templates
 from .utils import add_init_file, to_camel_case, to_snake_case
 from .jobs import AsyncJob, ThreadJob, ProcessJob
+from .scheduler import SyncScheduler
+
+JobListHint = List[Union[Type[AsyncJob], Type[ThreadJob], Type[ProcessJob]]]
 
 
 @click.group(help=__doc__)
@@ -19,15 +22,16 @@ from .jobs import AsyncJob, ThreadJob, ProcessJob
 def main(): pass
 
 
-def show_jobs_info(jobs: List[Union[AsyncJob, ThreadJob, ProcessJob]], verbose: bool):
+def show_jobs_info(jobs: JobListHint, path: Path = None, verbose: bool = False):
     count = click.style(len(jobs), fg='green')
-    click.echo(f"[{count}] jobs were found{':' if verbose else '.'}")
+    path_str = f" at {click.style(f'{path}/', fg='green')}" if path is not None else ""
+    click.echo(f"[{count}] jobs were found{path_str}{':' if verbose else '.'}")
     if verbose:
         for job in jobs:
-            click.echo(f"* {click.style(job.__name__, fg='blue')} at {job.__module__}")
+            click.echo(f"* {click.style(job.__name__, fg='blue')}\t at {job.__module__}")
 
 
-def load_jobs(path: Path) -> List[Union[AsyncJob, ThreadJob, ProcessJob]]:
+def load_jobs(path: Path) -> JobListHint:
     jobs = []
     for file in path.glob('**/*.py'):
         if file.parts[0][0] == '.':  # skip hidden
@@ -46,6 +50,13 @@ def load_jobs(path: Path) -> List[Union[AsyncJob, ThreadJob, ProcessJob]]:
             and cls[0] not in (AsyncJob.__name__, ThreadJob.__name__, ProcessJob.__name__)
         )
     return jobs
+
+
+def start_jobs(jobs: JobListHint):
+    scheduler = SyncScheduler()
+    for job in jobs:
+        scheduler.add_job(job())
+    scheduler.start(block=True)
 
 
 @main.command()
@@ -70,9 +81,11 @@ def load_jobs(path: Path) -> List[Union[AsyncJob, ThreadJob, ProcessJob]]:
 )
 def run(path: Path, jobs_description_list: str, verbose: bool):
     """Start all jobs."""
+
     jobs = load_jobs(path)
     show_jobs_info(jobs, verbose=verbose)
     click.secho(f"path={path}, list={jobs_description_list}, verbose={verbose}", fg="green")
+    start_jobs(jobs)
 
 
 @main.command()
@@ -91,7 +104,7 @@ def run(path: Path, jobs_description_list: str, verbose: bool):
     type=Path,
     help='Path to which the job file will be created.',
 )
-def create(name: str, job_type: str, path: Path):
+def new(name: str, job_type: str, path: Path):
     """Create new job by template."""
 
     if name[-3:].lower() != 'job':
@@ -109,3 +122,18 @@ def create(name: str, job_type: str, path: Path):
         f"{job_type.capitalize()} job {click.style(class_name, fg='blue')} "
         f"have been created at {click.style(path / file_name, fg='blue')}."
     )
+
+
+@main.command(name='list')
+@click.option(
+    '--path', '-P', 'path',
+    default=Path('.'),
+    show_default='current directory',
+    type=Path,
+    help='Path to directory with jobs.',
+)
+def list_command(path: Path):
+    """Show the list of found jobs."""
+
+    jobs = load_jobs(path)
+    show_jobs_info(jobs, path=path, verbose=True)

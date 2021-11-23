@@ -7,9 +7,14 @@ from multiprocessing import Process, Event as ProcessEvent
 
 
 class AbstractJob(ABC):
+    INTERVAL: timedelta = NotImplementedError
+
     @abstractmethod
     def stop(self):
         raise NotImplementedError
+
+    def execute(self):
+        pass
 
     @abstractmethod
     def run(self):
@@ -18,23 +23,25 @@ class AbstractJob(ABC):
 
 @dataclass
 class JobData:
-    interval: timedelta
-    execute: Callable
+    interval: timedelta = None
+    execute: Callable = None
     args: list = field(default_factory=list)
     kwargs: dict = field(default_factory=dict)
 
 
-class BaseSyncJob:
+class BaseSyncJob(AbstractJob):
     BLOCKER_CLASS: Type[Union[ThreadEvent, ProcessEvent]]
+    INTERVAL: timedelta = None
 
     def __init__(self, **kwargs):
         self.data = JobData(**kwargs)
+        self.interval = self.data.interval or self.INTERVAL
         self.blocker = self.BLOCKER_CLASS()
 
     def run(self):
-        while not self.blocker.wait(self.data.interval.total_seconds()):
-            print(self.__hash__())
-            self.data.execute(*self.data.args, **self.data.kwargs)
+        execute = self.data.execute or self.execute
+        while not self.blocker.wait(self.interval.total_seconds()):
+            execute(*self.data.args, **self.data.kwargs)
 
 
 class ProcessJob(BaseSyncJob, Process):
@@ -62,6 +69,6 @@ class ThreadJob(BaseSyncJob, Thread):
         self.join()
 
 
-class AsyncJob(JobData):
+class AsyncJob(AbstractJob):
     async def stop(self): pass
     async def run(self): pass
