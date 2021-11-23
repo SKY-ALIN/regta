@@ -2,17 +2,50 @@
 See details on the homepage at https://github.com/SKY-ALIN/regta/"""
 
 from pathlib import Path
+from importlib.util import spec_from_file_location, module_from_spec
+import inspect
+from typing import List, Union
 
 import click
 
 from . import __version__
 from .enums import JobTypes, job_templates
-from .utils import to_camel_case, to_snake_case
+from .utils import add_init_file, to_camel_case, to_snake_case
+from .jobs import AsyncJob, ThreadJob, ProcessJob
 
 
 @click.group(help=__doc__)
 @click.version_option(__version__)
 def main(): pass
+
+
+def show_jobs_info(jobs: List[Union[AsyncJob, ThreadJob, ProcessJob]], verbose: bool):
+    count = click.style(len(jobs), fg='green')
+    click.echo(f"[{count}] jobs were found{':' if verbose else '.'}")
+    if verbose:
+        for job in jobs:
+            click.echo(f"* {click.style(job.__name__, fg='blue')} at {job.__module__}")
+
+
+def load_jobs(path: Path) -> List[Union[AsyncJob, ThreadJob, ProcessJob]]:
+    jobs = []
+    for file in path.glob('**/*.py'):
+        if file.parts[0][0] == '.':  # skip hidden
+            continue
+
+        module_name = ".".join(file.with_suffix("").parts)
+        spec = spec_from_file_location(module_name, file)
+        foo = module_from_spec(spec)
+        spec.loader.exec_module(foo)
+
+        jobs.extend(
+            cls[1]
+            for cls
+            in inspect.getmembers(foo, inspect.isclass)
+            if issubclass(cls[1], (AsyncJob, ThreadJob, ProcessJob))
+            and cls[0] not in (AsyncJob.__name__, ThreadJob.__name__, ProcessJob.__name__)
+        )
+    return jobs
 
 
 @main.command()
@@ -37,6 +70,8 @@ def main(): pass
 )
 def run(path: Path, jobs_description_list: str, verbose: bool):
     """Start all jobs."""
+    jobs = load_jobs(path)
+    show_jobs_info(jobs, verbose=verbose)
     click.secho(f"path={path}, list={jobs_description_list}, verbose={verbose}", fg="green")
 
 
@@ -49,18 +84,28 @@ def run(path: Path, jobs_description_list: str, verbose: bool):
     type=click.Choice([job_type.value for job_type in JobTypes]),
     help="Specify a job's type.",
 )
-def create(name: str, job_type: str):
+@click.option(
+    '--path', '-P', 'path',
+    default=Path('jobs/'),
+    show_default=True,
+    type=Path,
+    help='Path to which the job file will be created.',
+)
+def create(name: str, job_type: str, path: Path):
     """Create new job by template."""
+
     if name[-3:].lower() != 'job':
         name += "-job"
     file_name = f"{to_snake_case(name)}.py"
     class_name = to_camel_case(name)
 
     template = job_templates[JobTypes(job_type)]
-    with open(Path('.') / file_name, 'w') as job_file:
+    path.mkdir(parents=True, exist_ok=True)
+    add_init_file(path)
+    with open(path / file_name, 'w') as job_file:
         job_file.write(template.render(class_name=class_name))
 
     click.echo(
         f"{job_type.capitalize()} job {click.style(class_name, fg='blue')} "
-        f"have been created at {click.style(file_name, fg='blue')}."
+        f"have been created at {click.style(path / file_name, fg='blue')}."
     )

@@ -8,3 +8,4 @@ class {{ class_name }}(ThreadJob):
 
     def execute(self):  # function which is called every 3 seconds
         print(f"Hello world from {self.__class__.__name__}!")
+

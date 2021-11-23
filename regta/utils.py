@@ -1,5 +1,6 @@
 import re
 import string
+from pathlib import Path
 
 
 def _fix_name(s: str) -> str:
@@ -15,3 +16,8 @@ def to_snake_case(s: str) -> str:
 def to_camel_case(s: str) -> str:
     s = _fix_name(s)
     return ''.join(word.title() for word in s.split('_'))
+
+
+def add_init_file(path: Path):
+    init_path = path / "__init__.py"
+    init_path.touch(exist_ok=True)
