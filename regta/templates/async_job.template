@@ -1,0 +1,10 @@
+from datetime import timedelta
+
+from regta import AsyncJob
+
+
+class {{ class_name }}(AsyncJob):
+    INTERVAL = timedelta(seconds=3)
+
+    async def execute(self):  # function which is called every 3 seconds
+        print(f"Hello world from {self.__class__.__name__}!")

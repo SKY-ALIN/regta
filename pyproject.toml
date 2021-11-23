@@ -2,7 +2,7 @@
 name = "regta"
 version = "0.1.0"
 description = "Lightweight framework for executing periodic async and sync jobs in python"
-authors = ["Vladimir Alinsky <adam3iks@gmail.com>"]
+authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/SKY-ALIN/regta"
@@ -16,6 +16,7 @@ include = [
 python = "^3.7"
 click = "^8.0.3"
 pathlib = "^1.0.1"
+Jinja2 = "^3.0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

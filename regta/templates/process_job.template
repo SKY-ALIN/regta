@@ -1,0 +1,10 @@
+from datetime import timedelta
+
+from regta import ProcessJob
+
+
+class {{ class_name }}(ProcessJob):
+    INTERVAL = timedelta(seconds=3)
+
+    def execute(self):  # function which is called every 3 seconds
+        print(f"Hello world from {self.__class__.__name__}!")

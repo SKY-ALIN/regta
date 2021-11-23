@@ -27,8 +27,20 @@ class BaseScheduler(AbstractScheduler):
     pass
 
 
-class AsyncScheduler(BaseScheduler):
-    pass
+class AsyncScheduler(BaseScheduler, Thread):
+    async_jobs: List[AsyncJob] = []
+
+    def add_job(self, job: AsyncJob):
+        if isinstance(job, AsyncJob):
+            self.async_jobs.append(job)
+        else:
+            raise IncorrectJobType(job, self)
+
+    def start(self, block: bool):
+        pass
+
+    def stop(self):
+        self.join()
 
 
 class SyncScheduler(BaseScheduler):
@@ -79,3 +91,7 @@ class SyncScheduler(BaseScheduler):
     def stop(self):
         self.__stop_jobs(self.thread_jobs)
         self.__stop_jobs(self.process_jobs)
+
+
+class Scheduler(BaseScheduler):
+    pass
