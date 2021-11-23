@@ -55,11 +55,12 @@ you can simply describe them as a list and pass them to the `regta run` command 
 $ regta run --list jobs.main:TASKS
 > [1] jobs were found.
 > Hello, User!  # code of job
+.  .  .
 ```
 `jobs/main.py`:
 ```python
 def your_function(name):
-    print(f"Hello, {name}")
+    print(f"Hello, {name}!")
 
 TASKS = [
     {

@@ -12,7 +12,7 @@ from . import __version__
 from .enums import JobTypes, job_templates
 from .utils import add_init_file, to_camel_case, to_snake_case
 from .jobs import AsyncJob, ThreadJob, ProcessJob
-from .scheduler import SyncScheduler
+from .scheduler import Scheduler
 
 JobListHint = List[Union[Type[AsyncJob], Type[ThreadJob], Type[ProcessJob]]]
 
@@ -59,14 +59,14 @@ def load_jobs(path: Path) -> JobListHint:
     return jobs
 
 
-def start_jobs(jobs: JobListHint):
+def run_jobs(jobs: JobListHint):
     if not jobs:
         return
 
-    scheduler = SyncScheduler()
+    scheduler = Scheduler()
     for job in jobs:
         scheduler.add_job(job())
-    scheduler.start(block=True)
+    scheduler.run(block=True)
 
 
 @main.command()
@@ -94,8 +94,7 @@ def run(path: Path, jobs_description_list: str, verbose: bool):
 
     jobs = load_jobs(path)
     show_jobs_info(jobs, verbose=verbose)
-    click.secho(f"path={path}, list={jobs_description_list}, verbose={verbose}", fg="green")
-    start_jobs(jobs)
+    run_jobs(jobs)
 
 
 @main.command()

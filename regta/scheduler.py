@@ -15,7 +15,7 @@ class AbstractScheduler(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def start(self, block: bool):
+    def run(self, block: bool):
         raise NotImplementedError
 
     @abstractmethod
@@ -60,7 +60,7 @@ class SyncScheduler(BaseScheduler):
                 self.stop()
                 break
 
-    def start(self, block: bool):
+    def run(self, block: bool):
         self.__start_jobs(self.thread_jobs, block)
         self.__start_jobs(self.process_jobs, block)
 
@@ -79,11 +79,12 @@ class SyncScheduler(BaseScheduler):
 
 class AsyncScheduler(BaseScheduler, Process):
     async_jobs: List[AsyncJob] = []
+    async_tasks: List = []
 
     def __init__(self):
         Process.__init__(self)
         super(AsyncScheduler, self).__init__()
-        self.loop = asyncio.new_event_loop()
+        self.loop = asyncio.get_event_loop()
 
     def add_job(self, job: AsyncJob):
         if isinstance(job, AsyncJob):
@@ -91,13 +92,45 @@ class AsyncScheduler(BaseScheduler, Process):
         else:
             raise IncorrectJobType(job, self)
 
-    def start(self, block: bool):
-        pass
+    def _run(self):
+        self.async_tasks = [
+            self.loop.create_task(job.run())
+            for job in self.async_jobs
+        ]
+        self.loop.run_forever()
+
+    def run(self, block: bool):
+        self._run()
 
     def stop(self):
+        for job in self.async_tasks:
+            job.task.cancel()
         self.join()
         self.terminate()
 
 
 class Scheduler(BaseScheduler):
-    pass
+    sync_scheduler: SyncScheduler = None
+    async_scheduler: AsyncScheduler = None
+
+    def add_job(self, job: Union[AsyncJob, ThreadJob, ProcessJob]):
+        if isinstance(job, AsyncJob):
+            if self.async_scheduler is None:
+                self.async_scheduler = AsyncScheduler()
+            self.async_scheduler.add_job(job)
+        elif isinstance(job, (ThreadJob, ProcessJob)):
+            if self.sync_scheduler is None:
+                self.sync_scheduler = SyncScheduler()
+            self.sync_scheduler.add_job(job)
+        else:
+            raise IncorrectJobType(job, self)
+
+    def run(self, block: bool):
+        if self.sync_scheduler is not None:
+            self.sync_scheduler.run(block=(self.async_scheduler is None and block))
+        if self.async_scheduler is not None:
+            self.async_scheduler.run(block=block)
+
+    def stop(self): pass
+
+

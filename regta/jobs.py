@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import asyncio
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Callable, Union, Type
@@ -29,8 +30,7 @@ class JobData:
     kwargs: dict = field(default_factory=dict)
 
 
-class BaseSyncJob(AbstractJob):
-    BLOCKER_CLASS: Type[Union[ThreadEvent, ProcessEvent]]
+class BaseJob(AbstractJob):
     INTERVAL: timedelta = None
 
     def __init__(self, **kwargs):
@@ -41,6 +41,21 @@ class BaseSyncJob(AbstractJob):
         self.execute = self.data.execute or self.execute
         if self.execute is None:
             raise ValueError("Execute is not specified")
+
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def stop(self):
+        raise NotImplementedError
+
+
+class BaseSyncJob(BaseJob):
+    BLOCKER_CLASS: Type[Union[ThreadEvent, ProcessEvent]]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.blocker = self.BLOCKER_CLASS()
 
     def _execute(self):
@@ -81,6 +96,14 @@ class ThreadJob(BaseSyncJob, Thread):
         self.join()
 
 
-class AsyncJob(AbstractJob):
+class AsyncJob(BaseJob):
+    async def _execute(self):
+        await self.execute(*self.data.args, **self.data.kwargs)
+
+    async def run(self):
+        while True:
+            await self._execute()
+            await asyncio.sleep(self.interval.total_seconds())
+
     async def stop(self): pass
-    async def run(self): pass
+
