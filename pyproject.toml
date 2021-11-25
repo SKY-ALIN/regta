@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "regta"
+version = "0.1.0"
+description = "Lightweight framework for executing periodic async and sync jobs in python"
+authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/SKY-ALIN/regta"
+repository = "https://github.com/SKY-ALIN/regta"
+keywords = ["periodic", "regular", "async", "cron"]
+include = [
+    "LICENSE",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^8.0.3"
+pathlib = "^1.0.1"
+Jinja2 = "^3.0.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+regta = "regta.console:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

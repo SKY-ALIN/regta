@@ -1,0 +1,14 @@
+from datetime import timedelta
+
+from regta import {{ job_class }}
+
+
+class {{ class_name }}({{ job_class }}):
+    INTERVAL = timedelta(seconds={{ seconds }})
+
+    {{ "async " if is_async else "" }}def execute(self):  # function is called every {{ seconds }} seconds
+        return (
+            f"Hello from {self.__class__.__name__}! "
+            f"This message is displayed every {self.INTERVAL.seconds} seconds."
+        )
+
