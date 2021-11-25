@@ -7,7 +7,7 @@ class {{ class_name }}(ProcessJob):
     INTERVAL = timedelta(seconds={{ seconds }})
 
     def execute(self):  # function is called every {{ seconds }} seconds
-        print(
+        return (
             f"Hello from {self.__class__.__name__}! "
             f"This message is displayed every {self.INTERVAL.seconds} seconds."
         )

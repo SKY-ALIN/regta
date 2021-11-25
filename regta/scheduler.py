@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import asyncio
 from typing import Union, List
-from multiprocessing import Process
+from threading import Thread
 import signal
 import time
 
@@ -15,7 +15,7 @@ class AbstractScheduler(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def run(self, block: bool):
+    def run(self, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
@@ -24,7 +24,23 @@ class AbstractScheduler(ABC):
 
 
 class BaseScheduler(AbstractScheduler):
-    pass
+    def __stop(self, *args):
+        self.stop()
+        signal.signal(signal.SIGTERM, self.__original_sigterm_handler)
+        signal.signal(signal.SIGINT, self.__original_sigint_handler)
+        raise StopService
+
+    def _block_main(self):
+        self.__original_sigterm_handler = signal.getsignal(signal.SIGTERM)
+        signal.signal(signal.SIGTERM, self.__stop)
+        self.__original_sigint_handler = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.__stop)
+
+        while True:
+            try:
+                time.sleep(1)
+            except StopService:
+                break
 
 
 class SyncScheduler(BaseScheduler):
@@ -45,27 +61,12 @@ class SyncScheduler(BaseScheduler):
             job.daemon = not block
             job.start()
 
-    @staticmethod
-    def __exit(signum, frame):
-        raise StopService
-
-    def __block_main(self):
-        signal.signal(signal.SIGTERM, self.__exit)
-        signal.signal(signal.SIGINT, self.__exit)
-
-        while True:
-            try:
-                time.sleep(1)
-            except StopService:
-                self.stop()
-                break
-
-    def run(self, block: bool):
+    def run(self, block: bool = True):
         self.__start_jobs(self.thread_jobs, block)
         self.__start_jobs(self.process_jobs, block)
 
         if block:
-            self.__block_main()
+            self._block_main()
 
     @staticmethod
     def __stop_jobs(jobs: List[Union[ThreadJob, ProcessJob]]):
@@ -77,14 +78,15 @@ class SyncScheduler(BaseScheduler):
         self.__stop_jobs(self.process_jobs)
 
 
-class AsyncScheduler(BaseScheduler, Process):
+class AsyncScheduler(BaseScheduler, Thread):
     async_jobs: List[AsyncJob] = []
     async_tasks: List = []
 
     def __init__(self):
-        Process.__init__(self)
+        Thread.__init__(self)
         super(AsyncScheduler, self).__init__()
-        self.loop = asyncio.get_event_loop()
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
 
     def add_job(self, job: AsyncJob):
         if isinstance(job, AsyncJob):
@@ -92,21 +94,17 @@ class AsyncScheduler(BaseScheduler, Process):
         else:
             raise IncorrectJobType(job, self)
 
-    def _run(self):
+    def run(self):
         self.async_tasks = [
             self.loop.create_task(job.run())
             for job in self.async_jobs
         ]
         self.loop.run_forever()
 
-    def run(self, block: bool):
-        self._run()
-
     def stop(self):
-        for job in self.async_tasks:
-            job.task.cancel()
-        self.join()
-        self.terminate()
+        for task in self.async_tasks:
+            task.cancel()
+        self.loop.call_soon_threadsafe(self.loop.stop)
 
 
 class Scheduler(BaseScheduler):
@@ -125,12 +123,17 @@ class Scheduler(BaseScheduler):
         else:
             raise IncorrectJobType(job, self)
 
-    def run(self, block: bool):
+    def run(self, block: bool = True):
         if self.sync_scheduler is not None:
             self.sync_scheduler.run(block=(self.async_scheduler is None and block))
         if self.async_scheduler is not None:
-            self.async_scheduler.run(block=block)
+            self.async_scheduler.daemon = not block
+            self.async_scheduler.start()
+        if block and self.async_scheduler is not None:
+            self._block_main()
 
-    def stop(self): pass
-
-
+    def stop(self, *args):
+        if self.sync_scheduler is not None:
+            self.sync_scheduler.stop()
+        if self.async_scheduler is not None:
+            self.async_scheduler.stop()

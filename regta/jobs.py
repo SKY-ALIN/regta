@@ -3,8 +3,11 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Callable, Union, Type
+import traceback
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
+
+import click
 
 from .enums import JobTypes
 
@@ -32,8 +35,21 @@ class JobData:
     kwargs: dict = field(default_factory=dict)
 
 
+def show_exception(job, e: Exception):
+    click.echo(
+        f"{click.style(job, fg='blue')} - "
+        f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}"
+    )
+    click.secho("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
+
+
+def show_result(job, res: str):
+    click.echo(f"{click.style(job, fg='blue')} - {res}")
+
+
 class BaseJob(AbstractJob):
     INTERVAL: timedelta = None
+    execute: Callable = None
 
     def __init__(self, **kwargs):
         self.data = JobData(**kwargs)
@@ -44,6 +60,12 @@ class BaseJob(AbstractJob):
         if self.execute is None:
             raise ValueError("Execute is not specified")
 
+    def _log_error(self, e: Exception):
+        show_exception(self, e)
+
+    def _log_result(self, res: str):
+        show_result(self, str(res))
+
     @abstractmethod
     def run(self):
         raise NotImplementedError
@@ -51,6 +73,9 @@ class BaseJob(AbstractJob):
     @abstractmethod
     def stop(self):
         raise NotImplementedError
+
+    def __str__(self):
+        return f"{self.__module__}:{self.__class__.__name__}"
 
 
 class BaseSyncJob(BaseJob):
@@ -61,11 +86,22 @@ class BaseSyncJob(BaseJob):
         self.blocker = self.BLOCKER_CLASS()
 
     def _execute(self):
-        self.execute(*self.data.args, **self.data.kwargs)
+        try:
+            res = self.execute(*self.data.args, **self.data.kwargs)
+            self._log_result(res)
+        except Exception as e:
+            self._log_error(e)
+
+    def __block(self):
+        try:
+            return self.blocker.wait(self.interval.total_seconds())
+        except KeyboardInterrupt:
+            pass
+        return True
 
     def run(self):
         self._execute()
-        while not self.blocker.wait(self.interval.total_seconds()):
+        while not self.__block():
             self._execute()
 
     @abstractmethod
@@ -100,7 +136,11 @@ class ThreadJob(BaseSyncJob, Thread):
 
 class AsyncJob(BaseJob):
     async def _execute(self):
-        await self.execute(*self.data.args, **self.data.kwargs)
+        try:
+            res = await self.execute(*self.data.args, **self.data.kwargs)
+            self._log_result(res)
+        except Exception as e:
+            self._log_error(e)
 
     async def run(self):
         while True:
@@ -115,3 +155,6 @@ jobs_classes = {
     JobTypes.THREAD: ThreadJob,
     JobTypes.PROCESS: ProcessJob,
 }
+
+JobHint = Union[AsyncJob, ThreadJob, ProcessJob]
+JobClassHint = Union[Type[AsyncJob], Type[ThreadJob], Type[ProcessJob]]

@@ -1,14 +1,18 @@
-## regta
-Lightweight framework for executing periodic async and sync jobs in python.
+# regta
+**Lightweight framework for executing periodic async and sync jobs in python.**
 
-### Installation
+[![pypi](https://img.shields.io/pypi/v/regta.svg)](https://pypi.python.org/pypi/regta)
+[![versions](https://img.shields.io/pypi/pyversions/regta.svg)](https://github.com/SKY-ALIN/regta)
+[![license](https://img.shields.io/github/license/SKY-ALIN/regta.svg)](https://github.com/SKY-ALIN/regta/blob/master/LICENSE)
+
+## Installation
 Install using `pip install regta` or `poetry add regta`. 
 You can check if **regta** was installed correctly with the following command
 `regta --version`, the correct output would be approximately `regta, version 0.1.0`.
 
-### Samples
+## Samples
 
-#### To automatically create basic job use `regta new` command. 
+### To automatically create basic job use `regta new` command. 
 You can specify the job type `[async|thread|process]`.
 You can **always** see other options by using the `--help` flag.
 ```shell
@@ -33,14 +37,14 @@ class SomeAsyncJob(AsyncJob):
         )
 ```
 
-#### To show the jobs list use `regta list` command:
+### To show the jobs list use `regta list` command:
 ```shell
 $ regta list
 > [1] jobs were found at ./:
 > * SomeAsyncJob   at jobs.some_async_job
 ```
 
-#### To start regta and all jobs use `regta run` command:
+### To start regta and all jobs use `regta run` command:
 ```shell
 $ regta run
 > [1] jobs were found.
@@ -52,7 +56,7 @@ If you do not want to use the provided OOP,
 and you would like to easily reuse functions you have already written, 
 you can simply describe them as a list and pass them to the `regta run` command as `--list` param:
 ```shell
-$ regta run --list jobs.main:JOBS
+$ regta run --list jobs.main:TASKS
 > [1] jobs were found.
 > Hello, User!  # code of job
 .  .  .
@@ -62,7 +66,7 @@ $ regta run --list jobs.main:JOBS
 def your_function(name):
     print(f"Hello, {name}!")
 
-JOBS = [
+TASKS = [
     {
         "thread": your_function,
         "kwargs": {"name": "User"},
