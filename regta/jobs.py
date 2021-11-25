@@ -157,4 +157,3 @@ jobs_classes = {
 }
 
 JobHint = Union[AsyncJob, ThreadJob, ProcessJob]
-JobClassHint = Union[Type[AsyncJob], Type[ThreadJob], Type[ProcessJob]]

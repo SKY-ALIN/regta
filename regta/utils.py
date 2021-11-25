@@ -5,12 +5,12 @@ from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
 from importlib import import_module
 import inspect
-from typing import List
+from typing import List, Type
 
 import click
 
 from .enums import JobTypes
-from .jobs import JobHint, JobClassHint, jobs_classes
+from .jobs import JobHint, jobs_classes
 from .scheduler import Scheduler
 
 
@@ -48,12 +48,12 @@ def show_jobs_info(jobs: list, path: Path = None, verbose: bool = False):
     click.echo(f"[{count}] jobs were found{path_str}{end_char}")
 
     if verbose:
-        for job in sorted(jobs, key=lambda j: j.__name__ if inspect.isclass(j) else job.__class__.__name__):
+        for job in sorted(jobs, key=lambda j: j.__name__ if inspect.isclass(j) else j.__class__.__name__):
             cls = job if inspect.isclass(job) else job.__class__
             click.echo(f"* {cls.__module__}:{click.style(cls.__name__, fg='blue')}")
 
 
-def load_jobs(path: Path) -> List[JobClassHint]:
+def load_jobs(path: Path) -> List[Type[JobHint]]:
     jobs = []
     for file in path.glob('**/*.py'):
         if file.parts[0][0] == '.':  # skip hidden
@@ -99,7 +99,7 @@ def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
     return [make_job_from_dict(job_dict) for job_dict in jobs_list]
 
 
-def run_jobs(jobs: List[JobHint] = None, classes: List[JobClassHint] = None):
+def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None):
     if not jobs and not classes:
         return
 
