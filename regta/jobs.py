@@ -37,10 +37,10 @@ class JobData:
 
 def show_exception(job, e: Exception):
     click.echo(
-        f"{click.style(job, fg='blue')} - "
-        f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}"
+        f"{click.style(job, fg='blue')} - " +
+        f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
+        click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
     )
-    click.secho("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
 
 
 def show_result(job, res: str):

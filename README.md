@@ -54,15 +54,12 @@ $ regta run
 
 If you do not want to use the provided OOP, 
 and you would like to easily reuse functions you have already written, 
-you can simply describe them as a list and pass them to the `regta run` command as `--list` param:
-```shell
-$ regta run --list jobs.main:TASKS
-> [1] jobs were found.
-> Hello, User!  # code of job
-.  .  .
-```
-`jobs/main.py`:
+you can simply describe them as a list:
+
+[comment]: <> (`jobs/main.py`:)
 ```python
+# jobs/main.py
+
 def your_function(name):
     print(f"Hello, {name}!")
 
@@ -75,4 +72,11 @@ TASKS = [
         },
     },
 ]
+```
+...and pass them to the `regta run` command as `--list` param:
+```shell
+$ regta run --list jobs.main:TASKS
+> [1] jobs were found.
+> Hello, User!  # code of job
+.  .  .
 ```

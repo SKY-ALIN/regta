@@ -2,16 +2,13 @@
 See details on the homepage at https://github.com/SKY-ALIN/regta/"""
 
 from pathlib import Path
-import random
 
 import click
 
 from . import __version__
-from .enums import JobTypes, job_templates
+from .enums import JobTypes
+from .templates import generate_job
 from .utils import (
-    add_init_file,
-    to_camel_case,
-    to_snake_case,
     make_jobs_from_list,
     load_list,
     load_jobs,
@@ -78,17 +75,7 @@ def run(path: Path, jobs_list: str, verbose: bool):
 def new(name: str, job_type: str, path: Path):
     """Create new job by template."""
 
-    if name[-3:].lower() != 'job':
-        name += "-job"
-    file_name = f"{to_snake_case(name)}.py"
-    class_name = to_camel_case(name)
-
-    template = job_templates[JobTypes(job_type)]
-    path.mkdir(parents=True, exist_ok=True)
-    add_init_file(path)
-    with open(path / file_name, 'w') as job_file:
-        job_file.write(template.render(class_name=class_name, seconds=random.randint(2, 60)))
-
+    file_name, class_name = generate_job(name, JobTypes(job_type), path)
     click.echo(
         f"{job_type.capitalize()} job {click.style(class_name, fg='blue')} "
         f"have been created at {click.style(path / file_name, fg='blue')}."
