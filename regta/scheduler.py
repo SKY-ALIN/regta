@@ -15,7 +15,7 @@ class AbstractScheduler(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def run(self, **kwargs):
+    def run(self, block: bool = True):
         raise NotImplementedError
 
     @abstractmethod
@@ -24,7 +24,10 @@ class AbstractScheduler(ABC):
 
 
 class BaseScheduler(AbstractScheduler):
-    def __stop(self, *args):
+    __original_sigterm_handler = None
+    __original_sigint_handler = None
+
+    def __stop(self, sig, frame):  # pylint: disable=unused-argument
         self.stop()
         signal.signal(signal.SIGTERM, self.__original_sigterm_handler)
         signal.signal(signal.SIGINT, self.__original_sigint_handler)
@@ -78,13 +81,13 @@ class SyncScheduler(BaseScheduler):
         self.__stop_jobs(self.process_jobs)
 
 
-class AsyncScheduler(BaseScheduler, Thread):
+class AsyncScheduler(AbstractScheduler, Thread):
     async_jobs: List[AsyncJob] = []
     async_tasks: List = []
 
     def __init__(self):
         Thread.__init__(self)
-        super(AsyncScheduler, self).__init__()
+        super().__init__()
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
@@ -94,7 +97,7 @@ class AsyncScheduler(BaseScheduler, Thread):
         else:
             raise IncorrectJobType(job, self)
 
-    def run(self):
+    def run(self, block: bool = True):
         self.async_tasks = [
             self.loop.create_task(job.run())
             for job in self.async_jobs
@@ -132,7 +135,7 @@ class Scheduler(BaseScheduler):
         if block and self.async_scheduler is not None:
             self._block_main()
 
-    def stop(self, *args):
+    def stop(self):
         if self.sync_scheduler is not None:
             self.sync_scheduler.stop()
         if self.async_scheduler is not None:

@@ -89,7 +89,7 @@ class BaseSyncJob(BaseJob):
         try:
             res = self.execute(*self.data.args, **self.data.kwargs)
             self._log_result(res)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self._log_error(e)
 
     def __block(self):
@@ -114,7 +114,7 @@ class ProcessJob(BaseSyncJob, Process):
 
     def __init__(self, **kwargs):
         Process.__init__(self)
-        super(ProcessJob, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def stop(self):
         self.blocker.set()
@@ -127,7 +127,7 @@ class ThreadJob(BaseSyncJob, Thread):
 
     def __init__(self, **kwargs):
         Thread.__init__(self)
-        super(ThreadJob, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def stop(self):
         self.blocker.set()
@@ -139,7 +139,7 @@ class AsyncJob(BaseJob):
         try:
             res = await self.execute(*self.data.args, **self.data.kwargs)
             self._log_result(res)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self._log_error(e)
 
     async def run(self):
