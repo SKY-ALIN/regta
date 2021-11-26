@@ -31,7 +31,7 @@ class SomeAsyncJob(AsyncJob):
     INTERVAL = timedelta(seconds=3)
 
     async def execute(self):  # function is called every 3 seconds
-        print(
+        return (
             f"Hello from {self.__class__.__name__}! "
             f"This message is displayed every {self.INTERVAL.seconds} seconds."
         )
@@ -41,14 +41,14 @@ class SomeAsyncJob(AsyncJob):
 ```shell
 $ regta list
 > [1] jobs were found at ./:
-> * SomeAsyncJob   at jobs.some_async_job
+> * jobs.some_async_job:SomeAsyncJob
 ```
 
 ### To start regta and all jobs use `regta run` command:
 ```shell
 $ regta run
 > [1] jobs were found.
-> Hello from SomeAsyncJob! this message is displayed every 3 seconds.  # code of job
+> jobs.some_async_job:SomeAsyncJob - Hello from SomeAsyncJob! this message is displayed every 3 seconds.  # code of job
 .  .  .
 ```
 
