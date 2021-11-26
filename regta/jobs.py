@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 import asyncio
-from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Callable, Union, Type
+from typing import Callable, Union, Type, Iterable
 import traceback
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
@@ -13,7 +12,7 @@ from .enums import JobTypes
 
 
 class AbstractJob(ABC):
-    INTERVAL: timedelta = NotImplementedError
+    interval: timedelta = NotImplementedError
 
     @abstractmethod
     def stop(self):
@@ -25,14 +24,6 @@ class AbstractJob(ABC):
     @abstractmethod
     def run(self):
         raise NotImplementedError
-
-
-@dataclass
-class JobData:
-    interval: timedelta = None
-    execute: Callable = None
-    args: list = field(default_factory=list)
-    kwargs: dict = field(default_factory=dict)
 
 
 def show_exception(job, e: Exception):
@@ -48,15 +39,18 @@ def show_result(job, res: str):
 
 
 class BaseJob(AbstractJob):
-    INTERVAL: timedelta = None
+    interval: timedelta = None
     execute: Callable = None
+    args: Iterable = []
+    kwargs: dict = {}
 
-    def __init__(self, **kwargs):
-        self.data = JobData(**kwargs)
-        self.interval = self.data.interval or self.INTERVAL
+    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.interval = interval or self.interval
         if self.interval is None:
             raise ValueError("Interval is not specified")
-        self.execute = self.data.execute or self.execute
+        self.execute = execute or self.execute
         if self.execute is None:
             raise ValueError("Execute is not specified")
 
@@ -87,7 +81,7 @@ class BaseSyncJob(BaseJob):
 
     def _execute(self):
         try:
-            res = self.execute(*self.data.args, **self.data.kwargs)
+            res = self.execute(*self.args, **self.kwargs)
             self._log_result(res)
         except Exception as e:  # pylint: disable=broad-except
             self._log_error(e)
@@ -137,7 +131,7 @@ class ThreadJob(BaseSyncJob, Thread):
 class AsyncJob(BaseJob):
     async def _execute(self):
         try:
-            res = await self.execute(*self.data.args, **self.data.kwargs)
+            res = await self.execute(*self.args, **self.kwargs)
             self._log_result(res)
         except Exception as e:  # pylint: disable=broad-except
             self._log_error(e)
@@ -150,10 +144,32 @@ class AsyncJob(BaseJob):
     async def stop(self): pass
 
 
+JobHint = Union[AsyncJob, ThreadJob, ProcessJob]
+
+
+def _make_decorator(_class: Type[JobHint]):
+    def decorator(interval: timedelta, *args, **kwargs):
+        def wrapper(func: Callable):
+            return type(
+                func.__name__,
+                (_class,),
+                {
+                    "execute": staticmethod(func),
+                    "interval": interval,
+                    "args": args,
+                    "kwargs": kwargs,
+                }
+            )
+        return wrapper
+    return decorator
+
+
+async_job = _make_decorator(AsyncJob)
+thread_job = _make_decorator(ThreadJob)
+process_job = _make_decorator(ProcessJob)
+
 jobs_classes = {
     JobTypes.ASYNC: AsyncJob,
     JobTypes.THREAD: ThreadJob,
     JobTypes.PROCESS: ProcessJob,
 }
-
-JobHint = Union[AsyncJob, ThreadJob, ProcessJob]

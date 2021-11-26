@@ -28,12 +28,12 @@ from regta import AsyncJob
 
 
 class SomeAsyncJob(AsyncJob):
-    INTERVAL = timedelta(seconds=3)
+    interval = timedelta(seconds=3)
 
     async def execute(self):  # function is called every 3 seconds
         return (
             f"Hello from {self.__class__.__name__}! "
-            f"This message is displayed every {self.INTERVAL.seconds} seconds."
+            f"This message is displayed every {self.interval.seconds} seconds."
         )
 ```
 
