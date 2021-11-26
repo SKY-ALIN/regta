@@ -31,7 +31,7 @@ def generate_job(name: str, job_type: JobTypes, path: Path) -> Tuple[str, str]:
     template = Templates.CLASS_JOB
     path.mkdir(parents=True, exist_ok=True)
     add_init_file(path)
-    with open(path / file_name, 'w') as job_file:
+    with open(path / file_name, 'w', encoding='utf-8') as job_file:
         job_file.write(template.render(
             job_class=jobs_classes[job_type].__name__,
             class_name=class_name,

@@ -61,13 +61,13 @@ def load_jobs(path: Path) -> List[Type[JobHint]]:
 
         module_name = ".".join(file.with_suffix("").parts)
         spec = spec_from_file_location(module_name, file)
-        foo = module_from_spec(spec)
-        spec.loader.exec_module(foo)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
 
         jobs.extend(
             cls[1]
             for cls
-            in inspect.getmembers(foo, inspect.isclass)
+            in inspect.getmembers(module, inspect.isclass)
             if issubclass(cls[1], tuple(jobs_classes.values()))
             and cls[0] not in (job_class.__name__ for job_class in jobs_classes.values())
         )
