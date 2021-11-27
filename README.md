@@ -7,52 +7,50 @@
 
 ## Installation
 Install using `pip install regta` or `poetry add regta`. 
-You can check if **regta** was installed correctly with the following command
-`regta --version`, the correct output would be approximately `regta, version 0.1.0`.
+You can check if **regta** was installed correctly with the following command `regta --help`.
 
 ## Samples
 
 ### To automatically create basic job use `regta new` command. 
-You can specify the job type `[async|thread|process]`.
+You can specify the job type `[async|thread|process]` as `--type` param.
 You can **always** see other options by using the `--help` flag.
 ```shell
 $ regta new some-async-job --type async
-> Async job SomeAsyncJob have been created at jobs/some_async_job.py.
+> Async job some_async_job in the decorator code style have been created at jobs/some_async_job.py.
 ```
 
 The previous command will create about this kind of code in `jobs/some_async_job.py`:
 ```python
 from datetime import timedelta
 
-from regta import AsyncJob
+import regta
 
 
-class SomeAsyncJob(AsyncJob):
-    interval = timedelta(seconds=3)
-
-    async def execute(self):  # function is called every 3 seconds
-        return (
-            f"Hello from {self.__class__.__name__}! "
-            f"This message is displayed every {self.interval.seconds} seconds."
-        )
+@regta.async_job(interval=timedelta(seconds=55))
+async def some_async_job():
+    """Everything this function returns will be logged. If an exception
+    occurs in this function, it will be logged as an error.
+    """
+    # Put your code here
+    return "Hello from some_async_job! This message is displayed every 55 seconds."
 ```
 
 ### To show the jobs list use `regta list` command:
 ```shell
 $ regta list
 > [1] jobs were found at ./:
-> * jobs.some_async_job:SomeAsyncJob
+> * jobs.some_async_job:some_async_job
 ```
 
-### To start regta and all jobs use `regta run` command:
+### To start all jobs use `regta run` command:
 ```shell
 $ regta run
 > [1] jobs were found.
-> jobs.some_async_job:SomeAsyncJob - Hello from SomeAsyncJob! this message is displayed every 3 seconds.  # code of job
+> jobs.some_async_job:some_async_job - Hello from some_async_job! This message is displayed every 55 seconds.
 .  .  .
 ```
 
-If you do not want to use the provided OOP, 
+If you do not want to use the provided decorators style and OOP (`regta new name --style oop`), 
 and you would like to easily reuse functions you have already written, 
 you can simply describe them as a list:
 
