@@ -35,7 +35,7 @@ def show_exception(job, e: Exception):
 
 
 def show_result(job, res: str):
-    click.echo(f"{click.style(job, fg='blue')} - {res}")
+    click.echo(f"{job.__module__}:{click.style(job.__class__.__name__, fg='blue')} - {res}")
 
 
 class BaseJob(AbstractJob):

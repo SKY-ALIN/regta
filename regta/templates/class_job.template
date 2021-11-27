@@ -6,7 +6,11 @@ from regta import {{ job_class }}
 class {{ class_name }}({{ job_class }}):
     interval = timedelta(seconds={{ seconds }})
 
-    {{ "async " if is_async else "" }}def execute(self):  # function is called every {{ seconds }} seconds
+    {{ "async " if is_async else "" }}def execute(self):
+        """Everything this function returns will be logged. If an exception
+        occurs in this function, it will be logged as an error.
+        """
+        # Put your code here
         return (
             f"Hello from {self.__class__.__name__}! "
             f"This message is displayed every {self.interval.seconds} seconds."
