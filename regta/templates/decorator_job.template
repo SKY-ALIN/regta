@@ -1,0 +1,13 @@
+from datetime import timedelta
+
+import regta
+
+
+@regta.{{ decorator_name }}(interval=timedelta(seconds={{ seconds }}))
+{{ "async " if is_async else "" }}def {{ function_name }}():
+    """Everything this function returns will be logged. If an exception
+    occurs in this function, it will be logged as an error.
+    """
+    # Put your code here
+    return "Hello from {{ function_name }}! This message is displayed every {{ seconds }} seconds."
+

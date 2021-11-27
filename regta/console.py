@@ -6,8 +6,8 @@ from pathlib import Path
 import click
 
 from . import __version__
-from .enums import JobTypes
-from .templates import generate_job
+from .enums import CodeStyles, JobTypes
+from .templates import generate_decorator_styled_job, generate_oop_styled_job
 from .utils import (
     make_jobs_from_list,
     load_list,
@@ -63,7 +63,14 @@ def run(path: Path, jobs_list: str, verbose: bool):
     default=JobTypes.THREAD.value,
     show_default=True,
     type=click.Choice([job_type.value for job_type in JobTypes]),
-    help="Specify a job's type.",
+    help="Job type. Defines how the job will use system resources.",
+)
+@click.option(
+    '--style', '-S', 'code_style',
+    default=CodeStyles.DECORATOR.value,
+    show_default=True,
+    type=click.Choice([style.value for style in CodeStyles]),
+    help="Job code style.",
 )
 @click.option(
     '--path', '-P', 'path',
@@ -72,13 +79,20 @@ def run(path: Path, jobs_list: str, verbose: bool):
     type=Path,
     help='Path to which the job file will be created.',
 )
-def new(name: str, job_type: str, path: Path):
+def new(name: str, job_type: str, code_style: str, path: Path):
     """Create new job by template."""
 
-    file_name, class_name = generate_job(name, JobTypes(job_type), path)
+    style = CodeStyles(code_style)
+    if style is CodeStyles.DECORATOR:
+        file_name, class_name = generate_decorator_styled_job(name, JobTypes(job_type), path)
+    elif style is CodeStyles.OOP:
+        file_name, class_name = generate_oop_styled_job(name, JobTypes(job_type), path)
+    else:
+        raise ValueError("Incorrect job code style")
+
     click.echo(
         f"{job_type.capitalize()} job {click.style(class_name, fg='blue')} "
-        f"have been created at {click.style(path / file_name, fg='blue')}."
+        f"in the {code_style} code style have been created at {click.style(path / file_name, fg='green')}."
     )
 
 
