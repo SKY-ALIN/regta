@@ -154,6 +154,7 @@ def _make_decorator(_class: Type[JobHint]):
                 func.__name__,
                 (_class,),
                 {
+                    "__module__": func.__module__,
                     "execute": staticmethod(func),
                     "interval": interval,
                     "args": args,
