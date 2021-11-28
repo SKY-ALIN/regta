@@ -27,28 +27,6 @@ class AbstractJob(ABC):
         raise NotImplementedError
 
 
-def show_exception(job, e: Exception, logger: Logger = None):
-    if logger is None:
-        click.echo(
-            f"{job.styled_str()} - " +
-            f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
-            click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
-        )
-    else:
-        logger.error(
-            f"{job} - " +
-            f"{e.__class__.__name__}: {str(e)}\n" +
-            "".join(traceback.format_tb(e.__traceback__))
-        )
-
-
-def show_result(job, res: str, logger: Logger = None):
-    if logger is None:
-        click.echo(f"{job.styled_str()} - {res}")
-    else:
-        logger.info(f"{job} - {res}")
-
-
 class BaseJob(AbstractJob):
     interval: timedelta = None
     execute: Callable = None
