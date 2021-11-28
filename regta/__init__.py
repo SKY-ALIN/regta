@@ -1,4 +1,4 @@
-from .scheduler import Scheduler
+from .schedulers import Scheduler
 from .jobs import (
     AsyncJob,
     ThreadJob,

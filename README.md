@@ -28,10 +28,6 @@ import regta
 
 @regta.async_job(interval=timedelta(seconds=55))
 async def some_async_job():
-    """Everything this function returns will be logged. If an exception
-    occurs in this function, it will be logged as an error.
-    """
-    # Put your code here
     return "Hello from some_async_job! This message is displayed every 55 seconds."
 ```
 
