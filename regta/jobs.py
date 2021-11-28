@@ -5,6 +5,7 @@ from typing import Callable, Union, Type, Iterable
 import traceback
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
+from logging import Logger
 
 import click
 
@@ -26,25 +27,14 @@ class AbstractJob(ABC):
         raise NotImplementedError
 
 
-def show_exception(job, e: Exception):
-    click.echo(
-        f"{click.style(job, fg='blue')} - " +
-        f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
-        click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
-    )
-
-
-def show_result(job, res: str):
-    click.echo(f"{job.__module__}:{click.style(job.__class__.__name__, fg='blue')} - {res}")
-
-
 class BaseJob(AbstractJob):
     interval: timedelta = None
     execute: Callable = None
+    logger: Logger = None
     args: Iterable = []
     kwargs: dict = {}
 
-    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, **kwargs):
+    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         self.args = args
         self.kwargs = kwargs
         self.interval = interval or self.interval
@@ -53,12 +43,27 @@ class BaseJob(AbstractJob):
         self.execute = execute or self.execute
         if self.execute is None:
             raise ValueError("Execute is not specified")
+        self.logger = logger or self.logger
 
     def _log_error(self, e: Exception):
-        show_exception(self, e)
+        if self.logger is not None:
+            self.logger.error(
+                f"{self} - " +
+                f"{e.__class__.__name__}: {str(e)}\n" +
+                "".join(traceback.format_tb(e.__traceback__))
+            )
+        else:
+            click.echo(
+                f"{self.styled_str()} - " +
+                f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
+                click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
+            )
 
     def _log_result(self, res: str):
-        show_result(self, str(res))
+        if self.logger is not None:
+            self.logger.info(f"{self} - {res}")
+        else:
+            click.echo(f"{self.styled_str()} - {res}")
 
     @abstractmethod
     def run(self):
@@ -68,8 +73,13 @@ class BaseJob(AbstractJob):
     def stop(self):
         raise NotImplementedError
 
-    def __str__(self):
-        return f"{self.__module__}:{self.__class__.__name__}"
+    @classmethod
+    def __str__(cls):
+        return f"{cls.__module__}:{cls.__name__}"
+
+    @classmethod
+    def styled_str(cls):
+        return f"{cls.__module__}:{click.style(cls.__name__, fg='blue')}"
 
 
 class BaseSyncJob(BaseJob):

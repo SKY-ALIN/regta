@@ -2,6 +2,8 @@
 See details on the homepage at https://github.com/SKY-ALIN/regta/"""
 
 from pathlib import Path
+from typing import List, Callable, Optional
+from logging import Logger
 
 import click
 
@@ -10,7 +12,7 @@ from .enums import CodeStyles, JobTypes
 from .templates import generate_decorator_styled_job, generate_oop_styled_job
 from .utils import (
     make_jobs_from_list,
-    load_list,
+    load_object,
     load_jobs,
     run_jobs,
     show_jobs_info,
@@ -31,7 +33,14 @@ def main(): pass
     help='Path to directory with jobs.',
 )
 @click.option(
-    '--list', '-L', 'jobs_list',
+    '--list', '-l', 'jobs_list_uri',
+    help=(
+        'Path to python file with list of jobs descriptions. '
+        'Format: <module>:<list>, example: package.main:JOBS'
+    ),
+)
+@click.option(
+    '--logger', '-L', 'logger_uri',
     help=(
         'Path to python file with list of jobs descriptions. '
         'Format: <module>:<list>, example: package.main:JOBS'
@@ -42,18 +51,27 @@ def main(): pass
     is_flag=True,
     help="A very detailed summary of what's going on."
 )
-def run(path: Path, jobs_list: str, verbose: bool):
+def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     """Start all jobs."""
 
     jobs = []
     classes = []
-    if jobs_list:
-        jobs = make_jobs_from_list(load_list(jobs_list))
+    if jobs_list_uri:
+        jobs_list: List[dict] = load_object(jobs_list_uri)
+        jobs = make_jobs_from_list(jobs_list)
     else:
         classes = load_jobs(path)
-    show_jobs_info(jobs+classes, verbose=verbose)
-    run_jobs(jobs=jobs, classes=classes)
-    click.secho("All tasks are closed correctly.", fg='green')
+
+    logger_factory: Optional[Callable] = load_object(logger_uri) if logger_uri else None
+    logger: Optional[Logger] = logger_factory() if logger_factory else None
+
+    show_jobs_info(jobs+classes, verbose=verbose, logger=logger)
+    run_jobs(jobs=jobs, classes=classes, logger=logger)
+    end_str = "All jobs are closed correctly."
+    if logger is not None:
+        logger.info(end_str)
+    else:
+        click.secho(end_str, fg='green')
 
 
 @main.command()
