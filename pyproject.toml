@@ -12,7 +12,7 @@ include = [
     "LICENSE",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -30,9 +30,11 @@ Jinja2 = "^3.0.3"
 asyncio = "^3.4.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^7.0.0"
 flake8 = "^4.0.1"
 pylint = "^2.12.1"
+Sphinx = "^4"
+furo = "^2022.1.2"
 
 [tool.poetry.scripts]
 regta = "regta.console:main"
