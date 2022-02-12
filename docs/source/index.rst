@@ -1,3 +1,4 @@
+========
 Overview
 ========
 
@@ -19,6 +20,7 @@ Features
     :caption: Development
     :hidden:
 
+    changelog
     license
     GitHub Repository <https://github.com/SKY-ALIN/regta>
     PyPI Page <https://pypi.org/project/regta/>
