@@ -123,7 +123,7 @@ def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None, lo
         ValueError: If jobs or classes weren't passed.
     """
     if not jobs and not classes:
-        raise ValueError("Jobs or job's classes weren't passed")
+        raise ValueError("Jobs or jobs classes missed")
 
     scheduler = Scheduler()
     for job in jobs:
