@@ -124,6 +124,12 @@ class BaseJob(AbstractJob):
 class BaseSyncJob(BaseJob):
     """Class contains common for :class:`ThreadJob` and
     :class:`ProcessJob` blocking.
+
+    .. autoattribute:: interval
+    .. autoattribute:: execute
+    .. autoattribute:: logger
+    .. autoattribute:: args
+    .. autoattribute:: kwargs
     """
 
     _blocker_class: Type[Union[ThreadEvent, ProcessEvent]]

@@ -112,8 +112,18 @@ def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
 
 
 def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None, logger: Logger = None):
+    """Initializes :class:`regta.Scheduler` and starts passed jobs.
+
+    Args:
+        jobs: List of job instances.
+        classes: List of job classes. Func just will make instances from this.
+        logger: If logger isn`t passed regta will use std output.
+
+    Raises:
+        ValueError: If jobs or classes weren't passed.
+    """
     if not jobs and not classes:
-        return
+        raise ValueError("Jobs or job's classes weren't passed")
 
     scheduler = Scheduler()
     for job in jobs:
