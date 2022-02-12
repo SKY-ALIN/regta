@@ -35,6 +35,7 @@ flake8 = "^4.0.1"
 pylint = "^2.12.1"
 Sphinx = "^4"
 furo = "^2022.1.2"
+m2r2 = "^0.3.2"
 
 [tool.poetry.scripts]
 regta = "regta.console:main"

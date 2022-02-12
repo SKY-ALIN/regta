@@ -1,7 +1,15 @@
+"""Contains bases of different job types.
+
+You can use the following entities to build your jobs:
+    * Class :class:`AsyncJob` or :class:`async_job` decorator
+    * Class :class:`ThreadJob` or :class:`thread_job` decorator
+    * Class :class:`ProcessJob` or :class:`process_job` decorator
+"""
+
 from abc import ABC, abstractmethod
 import asyncio
 from datetime import timedelta
-from typing import Callable, Union, Type, Iterable
+from typing import Awaitable, Callable, Union, Type, Iterable, Optional
 import traceback
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
@@ -13,26 +21,54 @@ from .enums import JobTypes
 
 
 class AbstractJob(ABC):
-    interval: timedelta = NotImplementedError
+    """Interface which every job base implement."""
+
+    interval: timedelta = NotImplemented
+    """A timedelta object which describe interval between every
+    :meth:`.execute` call.
+    """
 
     @abstractmethod
     def stop(self):
+        """Method will be called by scheduler when regta gets stop
+        signal.
+        """
         raise NotImplementedError
 
+    @abstractmethod
     def execute(self):
-        pass
+        """The function on which job will be based. Must be rewrote.
+        It'll be called every :attr:`.interval`.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def run(self):
+        """Method will be called by scheduler when regta starts. It'll
+        call :meth:`.execute` every :attr:`.interval`.
+        """
         raise NotImplementedError
 
 
 class BaseJob(AbstractJob):
+    """Base job class which implements common logic."""
+
     interval: timedelta = None
+    """A timedelta object which describe interval between every
+    :attr:`.execute` call.
+    """
     execute: Callable = None
+    """The function on which job will be based. Must be rewrote or passed.
+    It'll be called every :attr:`.interval`.
+    """
     logger: Logger = None
+    """Logger writes all results of :attr:`.execute` function and
+    its exceptions. If logger isn't specified, regta will use std output.
+    """
     args: Iterable = []
+    """Args will be passed into :attr:`.execute`."""
     kwargs: dict = {}
+    """Key-word args will be passed into :attr:`.execute`."""
 
     def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         self.args = args
@@ -54,7 +90,7 @@ class BaseJob(AbstractJob):
             )
         else:
             click.echo(
-                f"{self.styled_str()} - " +
+                f"{self.__styled_str()} - " +
                 f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
                 click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
             )
@@ -63,10 +99,13 @@ class BaseJob(AbstractJob):
         if self.logger is not None:
             self.logger.info(f"{self} - {res}")
         else:
-            click.echo(f"{self.styled_str()} - {res}")
+            click.echo(f"{self.__styled_str()} - {res}")
 
     @abstractmethod
     def run(self):
+        """Method will be called by scheduler when regta starts. It'll
+        call :attr:`.execute` every :attr:`.interval`.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -78,16 +117,20 @@ class BaseJob(AbstractJob):
         return f"{cls.__module__}:{cls.__name__}"
 
     @classmethod
-    def styled_str(cls):
+    def __styled_str(cls):
         return f"{cls.__module__}:{click.style(cls.__name__, fg='blue')}"
 
 
 class BaseSyncJob(BaseJob):
-    BLOCKER_CLASS: Type[Union[ThreadEvent, ProcessEvent]]
+    """Class contains common for :class:`ThreadJob` and
+    :class:`ProcessJob` blocking.
+    """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.blocker = self.BLOCKER_CLASS()
+    _blocker_class: Type[Union[ThreadEvent, ProcessEvent]]
+
+    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
+        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
+        self._blocker = self._blocker_class()
 
     def _execute(self):
         try:
@@ -98,7 +141,7 @@ class BaseSyncJob(BaseJob):
 
     def __block(self):
         try:
-            return self.blocker.wait(self.interval.total_seconds())
+            return self._blocker.wait(self.interval.total_seconds())
         except KeyboardInterrupt:
             pass
         return True
@@ -114,31 +157,70 @@ class BaseSyncJob(BaseJob):
 
 
 class ProcessJob(BaseSyncJob, Process):
-    BLOCKER_CLASS = ProcessEvent
+    """Sync job class based on process.
 
-    def __init__(self, **kwargs):
+    .. autoattribute:: interval
+    .. autoattribute:: execute
+    .. autoattribute:: logger
+    .. autoattribute:: args
+    .. autoattribute:: kwargs
+    .. automethod:: regta.ProcessJob.run
+    """
+
+    _blocker_class = ProcessEvent
+
+    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         Process.__init__(self)
-        super().__init__(**kwargs)
+        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
-        self.blocker.set()
+        """Stops and terminates job's process. It will be called by scheduler
+        when regta gets stop signal.
+        """
+        self._blocker.set()
         self.join()
         self.terminate()
 
 
 class ThreadJob(BaseSyncJob, Thread):
-    BLOCKER_CLASS = ThreadEvent
+    """Sync job class based on thread.
 
-    def __init__(self, **kwargs):
+    .. autoattribute:: interval
+    .. autoattribute:: execute
+    .. autoattribute:: logger
+    .. autoattribute:: args
+    .. autoattribute:: kwargs
+    .. automethod:: regta.ThreadJob.run
+    """
+
+    _blocker_class = ThreadEvent
+
+    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         Thread.__init__(self)
-        super().__init__(**kwargs)
+        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
-        self.blocker.set()
+        """Stops job's thread. It will be called by scheduler
+        when regta gets stop signal.
+        """
+        self._blocker.set()
         self.join()
 
 
 class AsyncJob(BaseJob):
+    """Async job class. Will be executed in event loop.
+
+    .. autoattribute:: interval
+    .. autoattribute:: logger
+    .. autoattribute:: args
+    .. autoattribute:: kwargs
+    """
+
+    execute: Callable[..., Awaitable[Optional[str]]] = None
+    """The async function on which job will be based. Must be rewrote or 
+    passed. It'll be called every :attr:`.interval`.
+    """
+
     async def _execute(self):
         try:
             res = await self.execute(*self.args, **self.kwargs)
@@ -176,8 +258,11 @@ def _make_decorator(_class: Type[JobHint]):
 
 
 async_job = _make_decorator(AsyncJob)
+async_job.__doc__ = """Decorator makes :class:`AsyncJob` from async function."""
 thread_job = _make_decorator(ThreadJob)
+thread_job.__doc__ = """Decorator makes :class:`ThreadJob` from function."""
 process_job = _make_decorator(ProcessJob)
+process_job.__doc__ = """Decorator makes :class:`ProcessJob` from function."""
 
 jobs_classes = {
     JobTypes.ASYNC: AsyncJob,
