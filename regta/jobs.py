@@ -264,11 +264,35 @@ def _make_decorator(_class: Type[JobHint]):
 
 
 async_job = _make_decorator(AsyncJob)
-async_job.__doc__ = """Decorator makes :class:`AsyncJob` from async function."""
+async_job.__doc__ = (
+    """Decorator makes :class:`AsyncJob` from async function.
+    
+    Args:
+        interval: A timedelta object which describe interval between every call.
+        *args: Will be passed into function.
+        **kwargs: Will be passed into function.
+    """
+)
 thread_job = _make_decorator(ThreadJob)
-thread_job.__doc__ = """Decorator makes :class:`ThreadJob` from function."""
+thread_job.__doc__ = (
+    """Decorator makes :class:`ThreadJob` from function.
+
+    Args:
+        interval: A timedelta object which describe interval between every call.
+        *args: Will be passed into function.
+        **kwargs: Will be passed into function.
+    """
+)
 process_job = _make_decorator(ProcessJob)
-process_job.__doc__ = """Decorator makes :class:`ProcessJob` from function."""
+process_job.__doc__ = (
+    """Decorator makes :class:`ProcessJob` from function.
+    
+    Args:
+        interval: A timedelta object which describe interval between every call.
+        *args: Will be passed into function.
+        **kwargs: Will be passed into function.
+    """
+)
 
 jobs_classes = {
     JobTypes.ASYNC: AsyncJob,
