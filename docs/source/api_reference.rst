@@ -4,79 +4,100 @@ API Reference
 Main module API
 ---------------
 
-regta.async_job
-^^^^^^^^^^^^^^^
+async_job
+^^^^^^^^^
 .. autodecorator:: regta.async_job
 
-regta.thread_job
-^^^^^^^^^^^^^^^^
+thread_job
+^^^^^^^^^^
 .. autodecorator:: regta.thread_job
 
-regta.process_job
-^^^^^^^^^^^^^^^^^
+process_job
+^^^^^^^^^^^
 .. autodecorator:: regta.process_job
 
-regta.AsyncJob
-^^^^^^^^^^^^^^
+AsyncJob
+^^^^^^^^
 .. autoclass:: regta.AsyncJob
    :members:
    :show-inheritance:
 
-regta.ThreadJob
-^^^^^^^^^^^^^^^
+ThreadJob
+^^^^^^^^^
 .. autoclass:: regta.ThreadJob
    :members:
    :show-inheritance:
 
-regta.ProcessJob
-^^^^^^^^^^^^^^^^
+ProcessJob
+^^^^^^^^^^
 .. autoclass:: regta.ProcessJob
    :members:
    :show-inheritance:
 
-regta.run
-^^^^^^^^^
+run
+^^^
 .. autofunction:: regta.run
 
-regta.Scheduler
-^^^^^^^^^^^^^^^
+Scheduler
+^^^^^^^^^
 .. autoclass:: regta.Scheduler
    :members:
    :show-inheritance:
 
+
 regta.jobs
 ----------
 
-regta.jobs.AbstractJob
-^^^^^^^^^^^^^^^^^^^^^^
+jobs.AbstractJob
+^^^^^^^^^^^^^^^^
 .. autoclass:: regta.jobs.AbstractJob
    :members:
    :show-inheritance:
 
-regta.jobs.BaseJob
-^^^^^^^^^^^^^^^^^^
+jobs.BaseJob
+^^^^^^^^^^^^
 .. autoclass:: regta.jobs.BaseJob
    :members:
    :show-inheritance:
 
-regta.jobs.BaseSyncJob
-^^^^^^^^^^^^^^^^^^^^^^
+jobs.BaseSyncJob
+^^^^^^^^^^^^^^^^
 .. autoclass:: regta.jobs.BaseSyncJob
    :members:
    :show-inheritance:
 
+
 regta.schedulers
 ----------------
 
-.. automodule:: regta.schedulers
+schedulers.AbstractScheduler
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: regta.schedulers.AbstractScheduler
    :members:
-   :undoc-members:
    :show-inheritance:
+
+schedulers.SyncBlocking
+^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: regta.schedulers.SyncBlocking
+   :members:
+   :show-inheritance:
+
+schedulers.SyncScheduler
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: regta.schedulers.SyncScheduler
+   :members:
+   :show-inheritance:
+
+schedulers.AsyncScheduler
+^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: regta.schedulers.AsyncScheduler
+   :members:
+   :show-inheritance:
+
 
 regta.exceptions
 ----------------
 
 .. automodule:: regta.exceptions
    :members:
-   :undoc-members:
    :show-inheritance:
