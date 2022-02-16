@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "regta"
-version = "0.1.0-alpha.0"
+version = "0.2.0"
 description = "Lightweight framework for executing periodic async and sync jobs in python"
 authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
 license = "MIT"
