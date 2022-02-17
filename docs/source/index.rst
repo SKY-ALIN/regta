@@ -12,7 +12,7 @@ Features
    :hidden:
 
    self
-   user_guide
+   User Guide <user_guide/index>
    api_reference
    cli_reference
 

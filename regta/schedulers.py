@@ -55,7 +55,7 @@ class AbstractScheduler(ABC):
 
 
 class SyncBlocking(AbstractScheduler, ABC):
-    """Contains sync blocking code to add `block` bool var to
+    """Contains sync blocking code to add :code:`block` bool var to
     :meth:`.AbstractScheduler.run` to block thread.
     """
 
@@ -81,7 +81,7 @@ class SyncBlocking(AbstractScheduler, ABC):
                 break
 
 
-class SyncScheduler(SyncBlocking):
+class SyncScheduler(SyncBlocking, AbstractScheduler):
     _thread_jobs: List[ThreadJob] = []
     _process_jobs: List[ProcessJob] = []
 
@@ -145,7 +145,7 @@ class AsyncScheduler(AbstractScheduler, Thread):
         self.loop.call_soon_threadsafe(self.loop.stop)
 
 
-class Scheduler(SyncBlocking):
+class Scheduler(SyncBlocking, AbstractScheduler):
     sync_scheduler: SyncScheduler = None
     async_scheduler: AsyncScheduler = None
 
