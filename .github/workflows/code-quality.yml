@@ -32,7 +32,7 @@ jobs:
     - name: Install pathlib
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pathlib
+        python -m pip install setuptools pathlib
 
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
