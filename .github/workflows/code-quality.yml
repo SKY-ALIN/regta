@@ -29,11 +29,14 @@ jobs:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
+    - name: Install pathlib
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pathlib
+
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: |
-        pip3 install pathlib
-        poetry install --no-interaction --no-root
+      run: poetry install --no-interaction --no-root
 
     - name: Install library
       run: poetry install --no-interaction
