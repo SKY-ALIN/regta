@@ -1,4 +1,4 @@
-name: Pylint
+name: Code Quality
 
 on: [push]
 
@@ -18,7 +18,6 @@ jobs:
       uses: snok/install-poetry@v1
       with:
         virtualenvs-create: true
-        virtualenvs-in-project: true
     - name: Install dependencies
       run: |
         poetry install
