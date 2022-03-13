@@ -32,7 +32,7 @@ jobs:
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: |
-        source .venv/bin/activate
+        pip3 install pathlib
         poetry install --no-interaction --no-root
 
     - name: Install library
