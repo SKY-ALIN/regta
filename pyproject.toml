@@ -25,7 +25,6 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.7"
 click = "^8.0.3"
-pathlib = "^1.0.1"
 Jinja2 = "^3.0.3"
 asyncio = "^3.4.3"
 
@@ -41,5 +40,5 @@ m2r2 = "^0.3.2"
 regta = "regta.console:main"
 
 [build-system]
-requires = ["setuptools", "poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
