@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'regta'
-copyright = '2022, Vladimir Alinsky'
+copyright = '2022, Vladimir Alinsky'  # pylint: disable=redefined-builtin
 author = 'Vladimir Alinsky'
 
 # The full version, including alpha/beta/rc tags

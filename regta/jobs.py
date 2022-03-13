@@ -223,7 +223,7 @@ class AsyncJob(BaseJob):
     """
 
     execute: Callable[..., Awaitable[Optional[str]]] = None
-    """The async function on which job will be based. Must be rewrote or 
+    """The async function on which job will be based. Must be rewrote or
     passed. It'll be called every :attr:`.interval`.
     """
 
@@ -266,7 +266,7 @@ def _make_decorator(_class: Type[JobHint]):
 async_job = _make_decorator(AsyncJob)
 async_job.__doc__ = (
     """Decorator makes :class:`AsyncJob` from async function.
-    
+
     Args:
         interval: A timedelta object which describe interval between every call.
         *args: Will be passed into function.
@@ -286,7 +286,7 @@ thread_job.__doc__ = (
 process_job = _make_decorator(ProcessJob)
 process_job.__doc__ = (
     """Decorator makes :class:`ProcessJob` from function.
-    
+
     Args:
         interval: A timedelta object which describe interval between every call.
         *args: Will be passed into function.
