@@ -31,13 +31,14 @@ jobs:
 
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      run: |
+        source .venv/bin/activate
+        poetry install --no-interaction --no-root
 
     - name: Install library
       run: poetry install --no-interaction
 
     - name: Code Quality
       run: |
-        source .venv/bin/activate
         flake8 regta
         find . -iname "*.py" -not -path "./.venv/*" | xargs pylint
