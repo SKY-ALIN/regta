@@ -5,7 +5,7 @@ CLI Reference
 regta
 -----
 
-.. code-block:: bash
+.. code-block:: none
 
     Usage: regta [OPTIONS] COMMAND [ARGS]...
 
@@ -21,7 +21,7 @@ regta
 regta new
 ---------
 
-.. code-block:: bash
+.. code-block:: none
 
     Usage: regta new [OPTIONS] NAME
 
@@ -39,7 +39,7 @@ regta new
 regta list
 ----------
 
-.. code-block:: bash
+.. code-block:: none
 
     Usage: regta list [OPTIONS]
 
@@ -53,7 +53,7 @@ regta list
 regta run
 ---------
 
-.. code-block:: bash
+.. code-block:: none
 
     Usage: regta run [OPTIONS]
 

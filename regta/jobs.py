@@ -90,7 +90,7 @@ class BaseJob(AbstractJob):
             )
         else:
             click.echo(
-                f"{self.__styled_str()} - " +
+                f"{self.styled_str()} - " +
                 f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
                 click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
             )
@@ -99,7 +99,7 @@ class BaseJob(AbstractJob):
         if self.logger is not None:
             self.logger.info(f"{self} - {res}")
         else:
-            click.echo(f"{self.__styled_str()} - {res}")
+            click.echo(f"{self.styled_str()} - {res}")
 
     @abstractmethod
     def run(self):
@@ -117,7 +117,7 @@ class BaseJob(AbstractJob):
         return f"{cls.__module__}:{cls.__name__}"
 
     @classmethod
-    def __styled_str(cls):
+    def styled_str(cls):
         return f"{cls.__module__}:{click.style(cls.__name__, fg='blue')}"
 
 
