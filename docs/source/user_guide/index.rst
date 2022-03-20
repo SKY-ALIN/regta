@@ -43,3 +43,6 @@ To start jobs use :code:`regta run` command::
 
    [1] jobs were found.
    my_job:my_basic_job - Hello world! This is just a log message.
+
+.. hint::
+   Add flag ``-V`` for verbose output.

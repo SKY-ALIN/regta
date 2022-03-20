@@ -4,6 +4,9 @@ Overview
 **Regta** is a production-ready lightweight framework for python to create and execute
 periodic async and sync jobs on different processes, threads and event loop.
 
+.. seealso::
+   How and why to use different jobs' types :ref:`here <jobs-types>`.
+
 Features
 --------
 
