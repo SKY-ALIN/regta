@@ -160,6 +160,8 @@ See example:
 
 .. code-block:: python
 
+    # jobs/my_python_file.py
+
     def some_your_function(x1: int, x2: int, factor: float = 1):
         return x1 / x2 * factor
 
@@ -192,7 +194,6 @@ See example:
                 "hours": 24,
             },
         },
-        # -- -- #
     ]
 
 .. note::
