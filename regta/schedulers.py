@@ -140,6 +140,7 @@ class AsyncScheduler(AbstractScheduler, Thread):
         self.loop.run_forever()
 
     def stop(self):
+        """Stops scheduler's jobs."""
         for task in self._async_tasks:
             task.cancel()
         self.loop.call_soon_threadsafe(self.loop.stop)

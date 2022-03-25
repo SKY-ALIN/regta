@@ -100,11 +100,8 @@ def make_job_from_dict(job_dict: dict) -> JobHint:
     }
     for job_type in JobTypes:
         if job_type.value in job_dict:
-            job = jobs_classes[job_type](execute=job_dict[job_type.value], **kwargs)
-            break
-    else:
-        raise ValueError("Unknown dictionary meaning, impossible to create a job")
-    return job
+            return jobs_classes[job_type](execute=job_dict[job_type.value], **kwargs)
+    raise ValueError("Unknown dictionary meaning, impossible to create a job")
 
 
 def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:

@@ -145,15 +145,15 @@ every dict will have this structure:
 
     class JobDictHint(TypedDict):
         async: Optional[Callable[..., Awaitable[Optional[str]]]]
-        thread: Optional[Callable]
-        process: Optional[Callable]
+        thread: Optional[Callable[..., Optional[str]]]
+        process: Optional[Callable[..., Optional[str]]]
 
         interval: dict
         args: Optional[Iterable] = []
         kwargs: Optional[dict] = {}
 
 .. important::
-   One one of async/thread/process keys must be specified. Which one
+   Only one of async/thread/process keys must be specified. Which one
    means job's type.
 
 See example:

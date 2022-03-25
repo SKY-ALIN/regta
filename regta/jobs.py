@@ -135,7 +135,7 @@ class BaseSyncJob(BaseJob):
     _blocker_class: Type[Union[ThreadEvent, ProcessEvent]]
 
     def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
-        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
         self._blocker = self._blocker_class()
 
     def _execute(self):
@@ -177,7 +177,7 @@ class ProcessJob(BaseSyncJob, Process):
 
     def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         Process.__init__(self)
-        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
         """Stops and terminates job's process. It will be called by scheduler
@@ -203,7 +203,7 @@ class ThreadJob(BaseSyncJob, Thread):
 
     def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         Thread.__init__(self)
-        super().__init__(self, *args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
         """Stops job's thread. It will be called by scheduler
