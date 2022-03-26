@@ -1,3 +1,4 @@
+=============
 API Reference
 =============
 
@@ -47,6 +48,8 @@ Scheduler
 
 regta.jobs
 ----------
+.. automodule:: regta.jobs
+   :exclude-members: AbstractJob, BaseJob, BaseSyncJob, AsyncJob, ThreadJob, ProcessJob, async_job, thread_job, process_job
 
 jobs.AbstractJob
 ^^^^^^^^^^^^^^^^
@@ -69,6 +72,8 @@ jobs.BaseSyncJob
 
 regta.schedulers
 ----------------
+.. automodule:: regta.schedulers
+   :exclude-members: AbstractScheduler, SyncBlocking, SyncScheduler, AsyncScheduler
 
 schedulers.AbstractScheduler
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
