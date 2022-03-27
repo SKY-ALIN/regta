@@ -1,26 +1,26 @@
-## regta
+# regta
 **Lightweight framework to create and execute periodic async and sync jobs on 
 different processes, threads and event loop.**
 
 [![pypi](https://img.shields.io/pypi/v/regta.svg)](https://pypi.python.org/pypi/regta)
 [![versions](https://img.shields.io/pypi/pyversions/regta.svg)](https://github.com/SKY-ALIN/regta)
-[![license](https://img.shields.io/github/license/SKY-ALIN/regta.svg)](https://github.com/SKY-ALIN/regta/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/SKY-ALIN/regta.svg)](https://github.com/SKY-ALIN/regta/blob/main/LICENSE)
+
+### Core Features
+
+- **Different Jobs** - Create async, thread-based or process-based jobs 
+  depending on your goals.
 
 
-### Features
+- **Support different code styles** - Create OOP styled or functional styled 
+  jobs. Regta also provide interface to reuse user's already written code.
 
-Different Jobs
-: Create async, thread-based or process-based jobs depending on your goals.
 
-Support different code styles
-: Create OOP styled or functional styled jobs. Regta also provide interface to reuse
-  user's already written code.
+- **CLI interface to work with jobs** - Regta provide CLI tool to list and 
+  start available written jobs.
 
-CLI interface to work with jobs
-: Regta provide CLI tool to list and start available written jobs.
 
-Logging
-: Redefine standard and define your own logging way.
+- **Logging** - Redefine standard and define your own logging way.
 
 ---
 
@@ -41,8 +41,10 @@ import regta
 async def my_basic_job():
     return "Hello world! This is just a log message."
 ```
+See more about different jobs types 
+[here](https://regta.alinsky.tech/user_guide/make_jobs).
 
-### Start up
+### Start Up
 To start jobs use `regta run` command:
 ```shell
 $ regta run
@@ -50,3 +52,9 @@ $ regta run
 > jobs.some_async_job:my_basic_job - Hello world! This is just a log message.
 .  .  .
 ```
+See CLI reference [here](https://regta.alinsky.tech/cli_reference).
+
+---
+
+Full documentation and reference is available at 
+[regta.alinsky.tech](https://regta.alinsky.tech)
