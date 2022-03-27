@@ -7,8 +7,9 @@ from .jobs import (
     thread_job,
     process_job,
 )
+from .utils import run_jobs as run
 
-__version__ = '0.1.0a0'
+__version__ = '0.2.0'
 
 __all__ = [
     "Scheduler",
@@ -18,4 +19,5 @@ __all__ = [
     "async_job",
     "thread_job",
     "process_job",
+    "run",
 ]

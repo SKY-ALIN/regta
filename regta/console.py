@@ -42,8 +42,8 @@ def main(): pass
 @click.option(
     '--logger', '-L', 'logger_uri',
     help=(
-        'Path to python file with list of jobs descriptions. '
-        'Format: <module>:<list>, example: package.main:JOBS'
+        'Path to python file with logger factory. '
+        'Format: <module>:<logger_factory>, example: package.logger:make_jobs_logger'
     ),
 )
 @click.option(
@@ -52,7 +52,7 @@ def main(): pass
     help="A very detailed summary of what's going on."
 )
 def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
-    """Start all jobs."""
+    """Starts all jobs."""
 
     jobs = []
     classes = []
@@ -66,12 +66,20 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     logger: Optional[Logger] = logger_factory() if logger_factory else None
 
     show_jobs_info(jobs+classes, verbose=verbose, logger=logger)
-    run_jobs(jobs=jobs, classes=classes, logger=logger)
-    end_str = "All jobs are closed correctly."
-    if logger is not None:
-        logger.info(end_str)
+
+    try:
+        run_jobs(jobs=jobs, classes=classes, logger=logger)
+    except ValueError as e:
+        if logger is not None:
+            logger.info(str(e))
+        else:
+            click.secho(str(e), fg='red')
     else:
-        click.secho(end_str, fg='green')
+        end_str = "All jobs are closed correctly."
+        if logger is not None:
+            logger.info(end_str)
+        else:
+            click.secho(end_str, fg='green')
 
 
 @main.command()
@@ -98,7 +106,7 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     help='Path to which the job file will be created.',
 )
 def new(name: str, job_type: str, code_style: str, path: Path):
-    """Create new job by template."""
+    """Creates new job by template."""
 
     style = CodeStyles(code_style)
     if style is CodeStyles.DECORATOR:
@@ -123,7 +131,7 @@ def new(name: str, job_type: str, code_style: str, path: Path):
     help='Path to directory with jobs.',
 )
 def list_command(path: Path):
-    """Show the list of found jobs."""
+    """Shows the list of found jobs."""
 
     jobs = load_jobs(path)
     show_jobs_info(jobs, path=path, verbose=True)

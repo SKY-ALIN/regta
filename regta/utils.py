@@ -100,11 +100,8 @@ def make_job_from_dict(job_dict: dict) -> JobHint:
     }
     for job_type in JobTypes:
         if job_type.value in job_dict:
-            job = jobs_classes[job_type](execute=job_dict[job_type.value], **kwargs)
-            break
-    else:
-        raise ValueError("Unknown dictionary meaning, impossible to create a job")
-    return job
+            return jobs_classes[job_type](execute=job_dict[job_type.value], **kwargs)
+    raise ValueError("Unknown dictionary meaning, impossible to create a job")
 
 
 def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
@@ -112,8 +109,18 @@ def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
 
 
 def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None, logger: Logger = None):
+    """Initializes :class:`regta.Scheduler` and starts passed jobs.
+
+    Args:
+        jobs: List of job instances.
+        classes: List of job classes. Func just will make instances from this.
+        logger: If logger isn`t passed regta will use std output.
+
+    Raises:
+        ValueError: If jobs or classes weren't passed.
+    """
     if not jobs and not classes:
-        return
+        raise ValueError("Jobs or jobs classes missed")
 
     scheduler = Scheduler()
     for job in jobs:

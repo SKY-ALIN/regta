@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  periodic_jobs:
+    build:
+      context: .
+      dockerfile: Dockerfile
