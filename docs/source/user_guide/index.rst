@@ -21,7 +21,7 @@ You can check if **regta** was installed correctly with the following command :c
 
 Basic Async Job
 ---------------
-To write async job use :code:`regta.async_job()` decorator:
+To write async job use :code:`@regta.async_job()` decorator:
 
 .. code-block:: python
     :caption: my_job.py
