@@ -10,7 +10,7 @@ def logger_factory():
     handler.setLevel(level)
     handler.setFormatter(formatter)
 
-    logger = logging.getLogger('__main__')
+    logger = logging.getLogger(__name__)
     logger.setLevel(level)
     logger.addHandler(handler)
 
