@@ -24,8 +24,7 @@ Basic Async Job
 To write async job use :code:`regta.async_job()` decorator:
 
 .. code-block:: python
-
-    # my_job.py
+    :caption: my_job.py
 
     from datetime import timedelta
     import regta

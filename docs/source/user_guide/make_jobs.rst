@@ -159,8 +159,7 @@ every dict will have this structure:
 See example:
 
 .. code-block:: python
-
-    # jobs/my_python_file.py
+    :caption: jobs/jobs_list_file.py
 
     def some_your_function(x1: int, x2: int, factor: float = 1):
         return x1 / x2 * factor
@@ -202,8 +201,12 @@ See example:
    writen without decorators :class:`regta.async_job`,
    :class:`regta.thread_job` and :class:`regta.process_job`.
 
-To pass this list into ``regta run`` command use ``-l``/``--list`` option
-(format: ``<module>:<list>``): ``regta run --list jobs.my_python_file:jobs_list``.
+To pass this list into ``regta run`` command use ``-l/--list`` option
+(format: ``<module>:<list>``):
+
+.. code-block:: shell
+
+    regta run --list jobs.jobs_list_file:jobs_list
 
 .. seealso::
     Check :ref:`regta run` to see more about this command and its options.
