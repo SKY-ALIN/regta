@@ -4,17 +4,16 @@ Make Jobs
 
 Regta provides different jobs types to build different tasks:
 
-To build fast tasks with IO operations e.g. internet requests, database query
+To build fast jobs with IO operations e.g. internet requests, database query
 or work with files use :ref:`async-job`.
 
-If for some reason you can't use
-asynchronous programming, but you are still faced with the task of building
-an lightweight job, use :ref:`thread-job`.
+If for some reason you can't use asynchronous programming, but you are still
+faced with the task of building a lightweight job, use :ref:`thread-job`.
 
 To build heavy jobs with a lot of computing e.g. ML or data analytics use
 :ref:`process-job`.
 
-All job's output will be logged. If logger factory are not specified,
+All job output will be logged. If logger factory is not specified,
 standard output will be used.
 
 .. seealso::
@@ -26,8 +25,8 @@ standard output will be used.
 
 Async Job
 ---------
-Use :class:`regta.async_job` to build job with this type. See example of how to
-send regular notification to Slack channel below:
+Use :class:`regta.async_job` to build jobs with this type. See an example of
+how to send regular notifications to a Slack channel below:
 
 .. code-block:: python
 
@@ -38,7 +37,7 @@ send regular notification to Slack channel below:
 
 
     class Slack:
-        URL: str  # secret url from env
+        URL: str  # secret URL from env
 
         def __init__(self, channel: str):
             self.channel = channel
@@ -60,8 +59,8 @@ send regular notification to Slack channel below:
 
 Thread-Based Job
 ----------------
-Use :class:`regta.thread_job` to build job with this type. See example of how to
-mark users as inactive for synchronous version of sqlalchemy:
+Use :class:`regta.thread_job` to build jobs with this type. See an example of
+how to mark users as inactive for the synchronous version of sqlalchemy:
 
 .. code-block:: python
 
@@ -91,10 +90,10 @@ mark users as inactive for synchronous version of sqlalchemy:
 
 Process-Based Job
 -----------------
-Use :class:`regta.process_job` to build job with this type. See example of how to
-predict weather by temperature (this is not good example of ML task, but is
-ok to demonstrate how to use process-based job) using prepared ML model on
-send result into Telegram channel:
+Use :class:`regta.process_job` to build jobs with this type. See an example of
+how to predict the weather by temperature (this is not a good example of a ML
+task, but is ok to demonstrate how to use a process-based job) using prepared
+ML model and send the result on a Telegram channel:
 
 .. code-block:: python
 
@@ -132,9 +131,9 @@ send result into Telegram channel:
         return msg
 
 
-Jobs As A List (Reusing User's Code Base)
------------------------------------------
-To provide already writen functions to regta write a list of dicts where
+Jobs As A List (Reusing User's Codebase)
+----------------------------------------
+To provide already written functions to regta write a list of dicts where
 every dict will have this structure:
 
 .. code-block:: python
@@ -154,7 +153,7 @@ every dict will have this structure:
 
 .. important::
    Only one of async/thread/process keys must be specified. Which one
-   means job's type.
+   means job type.
 
 See example:
 
