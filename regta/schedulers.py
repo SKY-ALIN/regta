@@ -22,7 +22,7 @@ class AbstractScheduler(ABC):
 
     @abstractmethod
     def add_job(self, job: AbstractJob):
-        """Adds job to scheduler jobs list  which will be started.
+        """Add job to scheduler jobs list which will be started.
 
         Args:
             job: The job will be added.
@@ -34,12 +34,12 @@ class AbstractScheduler(ABC):
 
     @abstractmethod
     def run(self, block: bool = True):
-        """Runs scheduler's jobs.
+        """Run scheduler's jobs.
 
         Args:
             block:
-                If True, blocks current thread. If False, thread will not be
-                blocked and your script will continue.
+                If True, blocks the current thread. If False, the thread will
+                not be blocked and your script will continue.
         """
         raise NotImplementedError
 
@@ -47,9 +47,9 @@ class AbstractScheduler(ABC):
     def stop(self):
         """Stops scheduler's jobs.
 
-        Will be called by :class:`regta.schedulers.SyncBlocking` when regta gets stop signal
-        (:exc:`SystemExit`, :exc:`KeyboardInterrupt`, etc.) or if
-        scheduler's thread is not blocked, you can call it yourself.
+        Will be called by :class:`regta.schedulers.SyncBlocking` when regta
+        gets stop signal (:exc:`SystemExit`, :exc:`KeyboardInterrupt`, etc.)
+        or if the scheduler's thread is not blocked, you can call it yourself.
         """
         raise NotImplementedError
 
@@ -140,7 +140,7 @@ class AsyncScheduler(AbstractScheduler, Thread):
         self.loop.run_forever()
 
     def stop(self):
-        """Stops scheduler's jobs."""
+        """Stop scheduler's jobs."""
         for task in self._async_tasks:
             task.cancel()
         self.loop.call_soon_threadsafe(self.loop.stop)
