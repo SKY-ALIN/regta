@@ -253,8 +253,7 @@ async_job.__doc__ = (
     """Decorator makes :class:`AsyncJob` from async function.
 
     Args:
-        interval: A timedelta object which describes the interval between 
-            every call.
+        interval: A timedelta object which describes the interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -264,8 +263,7 @@ thread_job.__doc__ = (
     """Decorator makes :class:`ThreadJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between 
-            every call.
+        interval: A timedelta object which describes the interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -275,8 +273,7 @@ process_job.__doc__ = (
     """Decorator makes :class:`ProcessJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between 
-            every call.
+        interval: A timedelta object which describes the interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """

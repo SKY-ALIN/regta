@@ -2,13 +2,13 @@ Make Jobs
 =========
 .. _jobs-types:
 
-Regta provides different jobs types to build different tasks:
+Regta provides various job types to solve various tasks:
 
 To build fast jobs with IO operations e.g. internet requests, database query
 or work with files use :ref:`async-job`.
 
 If for some reason you can't use asynchronous programming, but you are still
-faced with the task of building a lightweight job, use :ref:`thread-job`.
+faced with a task of building a lightweight job, use :ref:`thread-job`.
 
 To build heavy jobs with a lot of computing e.g. ML or data analytics use
 :ref:`process-job`.
