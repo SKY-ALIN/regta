@@ -43,7 +43,9 @@ Start Job
 To start jobs use :code:`regta run` command::
 
    [1] jobs were found.
-   my_job:my_basic_job - Hello world! This is just a log message.
+   2022-03-30 02:47:18,020 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
+   2022-03-30 02:47:23,024 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
+   2022-03-30 02:47:28,026 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
 
 .. hint::
    Add flag ``-V`` for verbose output.

@@ -10,14 +10,14 @@ from abc import ABC, abstractmethod
 import asyncio
 from datetime import timedelta
 from typing import Awaitable, Callable, Union, Type, Iterable, Optional
-import traceback
 from threading import Thread, Event as ThreadEvent
 from multiprocessing import Process, Event as ProcessEvent
-from logging import Logger
+from logging import Logger, LoggerAdapter
 
 import click
 
 from .enums import JobTypes
+from .logging import JobLoggerAdapter, make_default_logger
 
 
 class AbstractJob(ABC):
@@ -61,7 +61,7 @@ class BaseJob(AbstractJob):
     """The function on which job will be based. Must be rewrote or passed.
     It'll be called every :attr:`.interval`.
     """
-    logger: Logger = None
+    logger: Union[Logger, LoggerAdapter] = None
     """Logger writes all results of :attr:`.execute` function and
     its exceptions. If logger isn't specified, regta will use std output.
     """
@@ -73,33 +73,18 @@ class BaseJob(AbstractJob):
     def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
         self.args = args
         self.kwargs = kwargs
+
         self.interval = interval or self.interval
         if self.interval is None:
             raise ValueError("Interval is not specified")
+
         self.execute = execute or self.execute
         if self.execute is None:
             raise ValueError("Execute is not specified")
-        self.logger = logger or self.logger
 
-    def _log_error(self, e: Exception):
-        if self.logger is not None:
-            self.logger.error(
-                f"{self} - " +
-                f"{e.__class__.__name__}: {str(e)}\n" +
-                "".join(traceback.format_tb(e.__traceback__))
-            )
-        else:
-            click.echo(
-                f"{self.styled_str()} - " +
-                f"{click.style(f'{e.__class__.__name__}: {str(e)}', fg='red')}\n" +
-                click.style("".join(traceback.format_tb(e.__traceback__)), fg='yellow')
-            )
-
-    def _log_result(self, res: str):
-        if self.logger is not None:
-            self.logger.info(f"{self} - {res}")
-        else:
-            click.echo(f"{self.styled_str()} - {res}")
+        use_ansi: bool = (logger is None and self.logger is None)
+        logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)
+        self.logger = JobLoggerAdapter(logger, job=self, use_ansi=use_ansi)
 
     @abstractmethod
     def run(self):
@@ -141,9 +126,9 @@ class BaseSyncJob(BaseJob):
     def _execute(self):
         try:
             res = self.execute(*self.args, **self.kwargs)
-            self._log_result(res)
+            self.logger.info(res)
         except Exception as e:  # pylint: disable=broad-except
-            self._log_error(e)
+            self.logger.exception(e)
 
     def __block(self):
         try:
@@ -230,9 +215,9 @@ class AsyncJob(BaseJob):
     async def _execute(self):
         try:
             res = await self.execute(*self.args, **self.kwargs)
-            self._log_result(res)
+            self.logger.info(res)
         except Exception as e:  # pylint: disable=broad-except
-            self._log_error(e)
+            self.logger.exception(e)
 
     async def run(self):
         while True:

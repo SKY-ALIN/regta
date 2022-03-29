@@ -4,7 +4,7 @@ import logging
 def logger_factory():
     level = logging.INFO
 
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s]: - %(message)s')
+    formatter = logging.Formatter('%(asctime)s [%(job)s] [%(levelname)s] - %(message)s')
 
     handler = logging.FileHandler('output.log')
     handler.setLevel(level)

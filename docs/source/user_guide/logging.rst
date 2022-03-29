@@ -19,7 +19,7 @@ object. See a example of such factory:
     def logger_factory():
         level = logging.DEBUG
 
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s]: - %(message)s')
+        formatter = logging.Formatter('%(asctime)s [%(job)s] [%(levelname)s] - %(message)s')
 
         handler = logging.FileHandler('output.log')
         handler.setLevel(level)
@@ -30,6 +30,9 @@ object. See a example of such factory:
         logger.addHandler(handler)
 
         return logger
+
+.. note::
+   You can add ``%(job)s`` to your formatter to show the job's urn.
 
 Pass Logger
 -----------
