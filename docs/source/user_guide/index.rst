@@ -33,10 +33,10 @@ To write async job use :code:`@regta.async_job()` decorator:
     async def my_basic_job():
         return "Hello world! This is just a log message."
 
-This job is absolutely unuseful, but it will let us to check out how jobs work.
+This job is absolutely unuseful, but it will let us check out how jobs work.
 
 .. note::
-   Function can return string optionally, all function's output will be logged.
+   The function can return a string optionally, all function's output will be logged.
 
 Start Job
 ---------
