@@ -114,7 +114,7 @@ def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None, lo
     Args:
         jobs: List of job instances.
         classes: List of job classes. Func just will make instances from this.
-        logger: If logger isn`t passed regta will use std output.
+        logger: If a logger isn`t passed, regta will use std output.
 
     Raises:
         ValueError: If jobs or classes weren't passed.

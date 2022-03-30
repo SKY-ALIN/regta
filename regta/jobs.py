@@ -30,14 +30,14 @@ class AbstractJob(ABC):
 
     @abstractmethod
     def stop(self):
-        """Method will be called by scheduler when regta gets stop
+        """Method will be called by the scheduler when regta gets stop
         signal.
         """
         raise NotImplementedError
 
     @abstractmethod
     def execute(self):
-        """The function on which job will be based. Must be rewrote.
+        """The function on which job will be based. Must be rewritten.
         It'll be called every :attr:`.interval`.
         """
         raise NotImplementedError
@@ -58,12 +58,12 @@ class BaseJob(AbstractJob):
     :attr:`.execute` call.
     """
     execute: Callable = None
-    """The function on which job will be based. Must be rewrote or passed.
+    """The function on which job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
     """
     logger: Union[Logger, LoggerAdapter] = None
     """Logger writes all results of :attr:`.execute` function and
-    its exceptions. If logger isn't specified, regta will use std output.
+    its exceptions. If the logger isn't specified, regta will use std output.
     """
     args: Iterable = []
     """Args will be passed into :attr:`.execute`."""
@@ -148,7 +148,7 @@ class BaseSyncJob(BaseJob):
 
 
 class ProcessJob(BaseSyncJob, Process):
-    """Sync job class based on process.
+    """Sync job class based on a process.
 
     .. autoattribute:: interval
     .. autoattribute:: execute
@@ -165,8 +165,8 @@ class ProcessJob(BaseSyncJob, Process):
         super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
-        """Stops and terminates job's process. It will be called by scheduler
-        when regta gets stop signal.
+        """Stops and terminates job's process. It will be called by the scheduler
+        when regta gets a stop signal.
         """
         self._blocker.set()
         self.join()
@@ -174,7 +174,7 @@ class ProcessJob(BaseSyncJob, Process):
 
 
 class ThreadJob(BaseSyncJob, Thread):
-    """Sync job class based on thread.
+    """Sync job class based on a thread.
 
     .. autoattribute:: interval
     .. autoattribute:: execute
@@ -191,15 +191,15 @@ class ThreadJob(BaseSyncJob, Thread):
         super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
     def stop(self):
-        """Stops job's thread. It will be called by scheduler
-        when regta gets stop signal.
+        """Stops job's thread. It will be called by the scheduler
+        when regta gets a stop signal.
         """
         self._blocker.set()
         self.join()
 
 
 class AsyncJob(BaseJob):
-    """Async job class. Will be executed in event loop.
+    """Async job class. Will be executed in an event loop.
 
     .. autoattribute:: interval
     .. autoattribute:: logger
@@ -208,7 +208,7 @@ class AsyncJob(BaseJob):
     """
 
     execute: Callable[..., Awaitable[Optional[str]]] = None
-    """The async function on which job will be based. Must be rewrote or
+    """The async function on which job will be based. Must be rewritten or
     passed. It'll be called every :attr:`.interval`.
     """
 
@@ -253,9 +253,9 @@ async_job.__doc__ = (
     """Decorator makes :class:`AsyncJob` from async function.
 
     Args:
-        interval: A timedelta object which describe interval between every call.
-        *args: Will be passed into function.
-        **kwargs: Will be passed into function.
+        interval: A timedelta object which describes the interval between every call.
+        *args: Will be passed into the function.
+        **kwargs: Will be passed into the function.
     """
 )
 thread_job = _make_decorator(ThreadJob)
@@ -263,9 +263,9 @@ thread_job.__doc__ = (
     """Decorator makes :class:`ThreadJob` from function.
 
     Args:
-        interval: A timedelta object which describe interval between every call.
-        *args: Will be passed into function.
-        **kwargs: Will be passed into function.
+        interval: A timedelta object which describes the interval between every call.
+        *args: Will be passed into the function.
+        **kwargs: Will be passed into the function.
     """
 )
 process_job = _make_decorator(ProcessJob)
@@ -273,9 +273,9 @@ process_job.__doc__ = (
     """Decorator makes :class:`ProcessJob` from function.
 
     Args:
-        interval: A timedelta object which describe interval between every call.
-        *args: Will be passed into function.
-        **kwargs: Will be passed into function.
+        interval: A timedelta object which describes the interval between every call.
+        *args: Will be passed into the function.
+        **kwargs: Will be passed into the function.
     """
 )
 

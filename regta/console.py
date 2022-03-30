@@ -1,5 +1,7 @@
-"""Lightweight framework for executing periodic async and sync jobs in python.
-See details on the homepage at https://github.com/SKY-ALIN/regta/"""
+"""Lightweight framework to create and execute periodic async and sync jobs on
+different processes, threads, and event loops.
+See details on the homepage at https://github.com/SKY-ALIN/regta/
+"""
 
 from pathlib import Path
 from typing import List, Callable, Optional
@@ -35,7 +37,7 @@ def main(): pass
 @click.option(
     '--list', '-l', 'jobs_list_uri',
     help=(
-        'Path to python file with list of jobs descriptions. '
+        'Path to python file with a list of jobs descriptions. '
         'Format: <module>:<list>, example: package.main:JOBS'
     ),
 )
