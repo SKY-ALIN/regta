@@ -8,7 +8,7 @@ different processes, threads, and event loops.**
 
 ### Core Features
 
-- **Different Jobs** - Create async, thread-based, or process-based jobs 
+- **Various job types** - Create async, thread-based, or process-based jobs 
   depending on your goals.
 
 
@@ -16,7 +16,7 @@ different processes, threads, and event loops.**
   jobs. Regta also provides an interface to reuse user's already written code.
 
 
-- **CLI interface to work with jobs** - Regta provide a CLI tool to list and 
+- **CLI interface to work with jobs** - Regta provides a CLI tool to list and 
   start available written jobs.
 
 
@@ -41,7 +41,7 @@ import regta
 async def my_basic_job():
     return "Hello world! This is just a log message."
 ```
-See more about different jobs types 
+See more about various job types 
 [here](https://regta.alinsky.tech/user_guide/make_jobs).
 
 ### Start Up
@@ -58,5 +58,5 @@ See CLI reference [here](https://regta.alinsky.tech/cli_reference).
 
 ---
 
-Full documentation and reference is available at 
+Full documentation and reference are available at 
 [regta.alinsky.tech](https://regta.alinsky.tech)

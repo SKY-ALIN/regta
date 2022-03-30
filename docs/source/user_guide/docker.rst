@@ -1,6 +1,6 @@
 Docker Example
 ==============
-Let's check how to setup regta with docker. For this example we wrote a
+Let's check how to set up regta with docker. For this example, we wrote a
 `little basic example project <link-to-project_>`_.
 
 .. literalinclude:: docker_example_project/Dockerfile
