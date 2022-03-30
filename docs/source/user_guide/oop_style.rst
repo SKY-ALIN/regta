@@ -3,11 +3,11 @@ OOP Styled Jobs
 Every decorator from the last page create one of next classes from your
 function, but you can create these class yourself. The examples below are as
 simple as possible without any specific implementation, just the logging.
-See previous page for examples with concrete implementations.
+See the previous page for examples with concrete implementations.
 
 Async Job
 ---------
-Use :class:`regta.AsyncJob` to build job with this type.
+Use :class:`regta.AsyncJob` to build a job with this type.
 
 .. code-block:: python
 
@@ -25,7 +25,7 @@ Use :class:`regta.AsyncJob` to build job with this type.
 
 Thread Job
 ----------
-Use :class:`regta.ThreadJob` to build job with this type.
+Use :class:`regta.ThreadJob` to build a job with this type.
 
 .. code-block:: python
 
@@ -43,7 +43,7 @@ Use :class:`regta.ThreadJob` to build job with this type.
 
 Process Job
 -----------
-Use :class:`regta.ProcessJob` to build job with this type.
+Use :class:`regta.ProcessJob` to build a job with this type.
 
 .. code-block:: python
 
