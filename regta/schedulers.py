@@ -1,3 +1,11 @@
+"""Contains family of different schedulers.
+
+Use following schedulers to build your system:
+    * :class:`AsyncScheduler` for only :class:`AsyncJob`.
+    * :class:`SyncScheduler` for only sync jobs (:class:`ThreadJob` or :class:`ProcessJob`).
+    * :class:`Scheduler` for all types of jobs (**recommended**).
+"""
+
 from abc import ABC, abstractmethod
 import asyncio
 from typing import Union, List
@@ -10,21 +18,51 @@ from .exceptions import StopService, IncorrectJobType
 
 
 class AbstractScheduler(ABC):
+    """Interface which every scheduler implement."""
+
     @abstractmethod
     def add_job(self, job: AbstractJob):
+        """Add job to scheduler jobs list which will be started.
+
+        Args:
+            job: The job will be added.
+
+        Raises:
+            IncorrectJobType: If incorrect job type will be passed.
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def run(self, **kwargs):
+    def run(self, block: bool = True):
+        """Run scheduler's jobs.
+
+        Args:
+            block:
+                If True, blocks the current thread. If False, the thread will
+                not be blocked and your script will continue.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def stop(self):
+        """Stops scheduler's jobs.
+
+        Will be called by :class:`regta.schedulers.SyncBlocking` when regta
+        gets stop signal (:exc:`SystemExit`, :exc:`KeyboardInterrupt`, etc.)
+        or if the scheduler's thread is not blocked, you can call it yourself.
+        """
         raise NotImplementedError
 
 
-class BaseScheduler(AbstractScheduler):
-    def __stop(self, *args):
+class SyncBlocking(AbstractScheduler, ABC):
+    """Contains sync blocking code to add :code:`block` bool var to
+    :meth:`.AbstractScheduler.run` to block thread.
+    """
+
+    __original_sigterm_handler = None
+    __original_sigint_handler = None
+
+    def __stop(self, sig, frame):  # pylint: disable=unused-argument
         self.stop()
         signal.signal(signal.SIGTERM, self.__original_sigterm_handler)
         signal.signal(signal.SIGINT, self.__original_sigint_handler)
@@ -43,15 +81,15 @@ class BaseScheduler(AbstractScheduler):
                 break
 
 
-class SyncScheduler(BaseScheduler):
-    thread_jobs: List[ThreadJob] = []
-    process_jobs: List[ProcessJob] = []
+class SyncScheduler(SyncBlocking, AbstractScheduler):
+    _thread_jobs: List[ThreadJob] = []
+    _process_jobs: List[ProcessJob] = []
 
     def add_job(self, job: Union[ThreadJob, ProcessJob]):
         if isinstance(job, ThreadJob):
-            self.thread_jobs.append(job)
+            self._thread_jobs.append(job)
         elif isinstance(job, ProcessJob):
-            self.process_jobs.append(job)
+            self._process_jobs.append(job)
         else:
             raise IncorrectJobType(job, self)
 
@@ -62,8 +100,8 @@ class SyncScheduler(BaseScheduler):
             job.start()
 
     def run(self, block: bool = True):
-        self.__start_jobs(self.thread_jobs, block)
-        self.__start_jobs(self.process_jobs, block)
+        self.__start_jobs(self._thread_jobs, block)
+        self.__start_jobs(self._process_jobs, block)
 
         if block:
             self._block_main()
@@ -74,40 +112,41 @@ class SyncScheduler(BaseScheduler):
             job.stop()
 
     def stop(self):
-        self.__stop_jobs(self.thread_jobs)
-        self.__stop_jobs(self.process_jobs)
+        self.__stop_jobs(self._thread_jobs)
+        self.__stop_jobs(self._process_jobs)
 
 
-class AsyncScheduler(BaseScheduler, Thread):
-    async_jobs: List[AsyncJob] = []
-    async_tasks: List = []
+class AsyncScheduler(AbstractScheduler, Thread):
+    _async_jobs: List[AsyncJob] = []
+    _async_tasks: List = []
 
     def __init__(self):
         Thread.__init__(self)
-        super(AsyncScheduler, self).__init__()
+        super().__init__()
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
     def add_job(self, job: AsyncJob):
         if isinstance(job, AsyncJob):
-            self.async_jobs.append(job)
+            self._async_jobs.append(job)
         else:
             raise IncorrectJobType(job, self)
 
-    def run(self):
-        self.async_tasks = [
+    def run(self, block: bool = True):
+        self._async_tasks = [
             self.loop.create_task(job.run())
-            for job in self.async_jobs
+            for job in self._async_jobs
         ]
         self.loop.run_forever()
 
     def stop(self):
-        for task in self.async_tasks:
+        """Stop scheduler's jobs."""
+        for task in self._async_tasks:
             task.cancel()
         self.loop.call_soon_threadsafe(self.loop.stop)
 
 
-class Scheduler(BaseScheduler):
+class Scheduler(SyncBlocking, AbstractScheduler):
     sync_scheduler: SyncScheduler = None
     async_scheduler: AsyncScheduler = None
 
@@ -132,7 +171,7 @@ class Scheduler(BaseScheduler):
         if block and self.async_scheduler is not None:
             self._block_main()
 
-    def stop(self, *args):
+    def stop(self):
         if self.sync_scheduler is not None:
             self.sync_scheduler.stop()
         if self.async_scheduler is not None:
