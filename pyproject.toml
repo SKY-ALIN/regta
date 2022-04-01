@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "regta"
 version = "0.2.0"
-description = "Lightweight framework for executing periodic async and sync jobs in python"
+description = "Lightweight framework to create and execute periodic async and sync jobs on different processes, threads and event loops."
 authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/SKY-ALIN/regta"
+homepage = "https://regta.alinsky.tech"
 repository = "https://github.com/SKY-ALIN/regta"
 keywords = ["periodic", "regular", "async", "jobs", "sync", "tasks", "cron"]
 include = [
