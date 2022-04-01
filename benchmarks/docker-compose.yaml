@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  regta_async:
+    build:
+      context: ./regta_marks
+      dockerfile: Dockerfile
+      args:
+        JOBS_AMOUNT: 20
+        JOBS_TYPE: async
+
+  regta_thread:
+    build:
+      context: ./regta_marks
+      dockerfile: Dockerfile
+      args:
+        JOBS_AMOUNT: 20
+        JOBS_TYPE: thread
+
+  regta_process:
+    build:
+      context: ./regta_marks
+      dockerfile: Dockerfile
+      args:
+        JOBS_AMOUNT: 20
+        JOBS_TYPE: process
