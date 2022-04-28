@@ -2,25 +2,76 @@ version: "3.9"
 
 services:
   regta_async:
+    container_name: regta_async
     build:
       context: ./regta_marks
       dockerfile: Dockerfile
       args:
-        JOBS_AMOUNT: 20
+        JOBS_AMOUNT: 10
         JOBS_TYPE: async
 
   regta_thread:
+    container_name: regta_thread
     build:
       context: ./regta_marks
       dockerfile: Dockerfile
       args:
-        JOBS_AMOUNT: 20
+        JOBS_AMOUNT: 10
         JOBS_TYPE: thread
 
   regta_process:
+    container_name: regta_process
     build:
       context: ./regta_marks
       dockerfile: Dockerfile
       args:
-        JOBS_AMOUNT: 20
+        JOBS_AMOUNT: 10
         JOBS_TYPE: process
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    command: /usr/bin/cadvisor -logtostderr --raw_cgroup_prefix_whitelist=/docker/ --disable_metrics=hugetlb
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /dev/disk:/dev/disk/:ro
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    ports:
+      - 8080:8080
+    depends_on:
+      - regta_async
+      - regta_thread
+      - regta_process
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    user: root
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  prometheus-data:
+  grafana-data:
