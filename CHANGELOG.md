@@ -1,4 +1,4 @@
-## 0.2.0 (in progress)
+## 0.2.0 (31.3.2022)
 * Add logging
 * Add decorator job style (`@regta.async_job`, `@regta.thread_job`, `@regta.process_job`)
 * Production ready execution

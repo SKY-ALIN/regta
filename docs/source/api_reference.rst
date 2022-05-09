@@ -73,7 +73,7 @@ jobs.BaseSyncJob
 regta.schedulers
 ----------------
 .. automodule:: regta.schedulers
-   :exclude-members: AbstractScheduler, SyncBlocking, SyncScheduler, AsyncScheduler
+   :exclude-members: AbstractScheduler, SyncBlocking, SyncScheduler, AsyncScheduler, Scheduler
 
 schedulers.AbstractScheduler
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
