@@ -22,7 +22,7 @@ copyright = '2022, Vladimir Alinsky'  # pylint: disable=redefined-builtin
 author = 'Vladimir Alinsky'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
     "m2r2",
+    "sphinx_copybutton",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -80,4 +81,13 @@ html_theme_options = {
             "class": "",
         },
     ],
+    "dark_css_variables": {
+        "color-api-name": "#ffa726",
+        "color-api-pre-name": "#ffa726",
+        "color-highlight-on-target": "#083563",
+    },
+    "light_css_variables": {
+        "color-api-name": "#ff9100",
+        "color-api-pre-name": "#ff9100",
+    }
 }
