@@ -2,8 +2,9 @@
 **Lightweight framework to create and execute periodic async and sync jobs on 
 different processes, threads, and event loops.**
 
-[![pypi](https://img.shields.io/pypi/v/regta.svg)](https://pypi.python.org/pypi/regta)
 [![versions](https://img.shields.io/pypi/pyversions/regta.svg)](https://github.com/SKY-ALIN/regta)
+![Code Quality](https://github.com/SKY-ALIN/regta/actions/workflows/code-quality.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/regta.svg)](https://pypi.org/project/regta/)
 [![license](https://img.shields.io/github/license/SKY-ALIN/regta.svg)](https://github.com/SKY-ALIN/regta/blob/main/LICENSE)
 
 ### Core Features
@@ -30,7 +31,7 @@ You can check if **regta** was installed correctly with the following
 command `regta --help`.
 
 ### Example
-To write async job use `@regta.async_job()` decorator
+To write async job just use `@regta.async_job()` decorator.
 ```python
 # jobs/some_async_job.py
 

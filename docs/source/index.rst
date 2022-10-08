@@ -8,8 +8,8 @@ periodic async and sync jobs on different processes, threads, and event loops.
    You can find out how and why to use various job types
    :ref:`here <jobs-types>`.
 
-Features
---------
+Core Features
+-------------
 
 **Various job types**
   Create async, thread-based, or process-based jobs depending on your goals.
