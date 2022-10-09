@@ -1,6 +1,6 @@
 # regta
-**Lightweight framework to create and execute periodic async and sync jobs on 
-different processes, threads, and event loops.**
+
+**Production-ready scheduler with async, multithreading and multiprocessing support for Python.**
 
 [![versions](https://img.shields.io/pypi/pyversions/regta.svg)](https://github.com/SKY-ALIN/regta)
 ![Code Quality](https://github.com/SKY-ALIN/regta/actions/workflows/code-quality.yml/badge.svg)
@@ -9,19 +9,19 @@ different processes, threads, and event loops.**
 
 ### Core Features
 
-- **Various job types** - Create async, thread-based, or process-based jobs 
-  depending on your goals.
+- **[Various job types](https://regta.alinsky.tech/user_guide/make_jobs)** - Create async, thread-based,
+  or process-based jobs depending on your goals.
 
 
-- **Support different code styles** - Create OOP styled or functional styled 
-  jobs. Regta also provides an interface to reuse user's already written code.
+- **[Support different code styles](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
+  or functional styled jobs. Regta also provides an interface to reuse user's already written code.
 
 
-- **CLI interface to work with jobs** - Regta provides a CLI tool to list and 
-  start available written jobs.
+- **[CLI interface to work with jobs](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
+  to list and start available written jobs.
 
 
-- **Logging** - Redefine standard and define your own logging.
+- **[Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard and define your own logging.
 
 ---
 
@@ -33,12 +33,12 @@ command `regta --help`.
 ### Example
 To write async job just use `@regta.async_job()` decorator.
 ```python
-# jobs/some_async_job.py
+# jobs/my_job.py
 
 from datetime import timedelta
 import regta
 
-@regta.async_job(interval=timedelta(seconds=5))
+@regta.async_job(timedelta(seconds=5))
 async def my_basic_job():
     return "Hello world! This is just a log message."
 ```
@@ -59,5 +59,5 @@ See CLI reference [here](https://regta.alinsky.tech/cli_reference).
 
 ---
 
-Full documentation and reference are available at 
+Full documentation and reference are available on 
 [regta.alinsky.tech](https://regta.alinsky.tech)
