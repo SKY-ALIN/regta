@@ -1,3 +1,5 @@
+from typing import Dict
+
 from logging import basicConfig, Formatter, INFO, Logger, LoggerAdapter, StreamHandler
 import sys
 import traceback
@@ -10,7 +12,7 @@ basicConfig(format=log_format)
 
 
 class BorgSingletonMeta(type):
-    _instances = {}
+    _instances: Dict[type, object] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -58,7 +60,7 @@ class DefaultLogger(Logger, metaclass=BorgSingletonMeta):
     pass
 
 
-def make_default_logger(use_ansi: bool):
+def make_default_logger(use_ansi: bool) -> DefaultLogger:
     formatter = ClickFormatter(log_format)
 
     handler = ClickStreamHandler(use_ansi=use_ansi)

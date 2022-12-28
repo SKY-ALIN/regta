@@ -1,4 +1,4 @@
-from typing import Any, List, Type
+from typing import Any, List, Type, Union, Iterable, Sequence
 
 from datetime import timedelta
 from importlib import import_module
@@ -36,19 +36,26 @@ def add_init_file(path: Path):
     init_path.touch(exist_ok=True)
 
 
-def show_jobs_info(jobs: list, path: Path = None, logger: Logger = None, verbose: bool = False):
-    end_char = ':' if verbose and len(jobs) > 0 else '.'
+def show_jobs_info(
+        jobs: Sequence[JobHint] = (),
+        classes: Sequence[Type[JobHint]] = (),
+        path: Union[Path, None] = None,
+        logger: Union[Logger, None] = None,
+        verbose: bool = False,
+):
+    jobs_count = (len(jobs)+len(classes))
+    end_char = ':' if verbose and jobs_count > 0 else '.'
     if logger is not None:
         path_str = (
             f" at {path}/'"
             if path is not None
             else ""
         )
-        logger.info(f"[{len(jobs)}] jobs were found{path_str}{end_char}")
+        logger.info(f"[{jobs_count}] jobs were found{path_str}{end_char}")
     else:
         count = click.style(
-            len(jobs),
-            fg='green' if len(jobs) > 0 else 'red'
+            jobs_count,
+            fg='green' if jobs_count > 0 else 'red'
         )
         path_str = (
             f" at {click.style(f'{path}/', fg='green')}"
@@ -58,24 +65,25 @@ def show_jobs_info(jobs: list, path: Path = None, logger: Logger = None, verbose
         click.echo(f"[{count}] jobs were found{path_str}{end_char}")
 
     if verbose:
-        for job in sorted(jobs, key=lambda j: j.__name__ if inspect.isclass(j) else j.__class__.__name__):
-            cls: Type[JobHint] = job if inspect.isclass(job) else job.__class__
+        for _class in sorted(list(classes) + [job.__class__ for job in jobs], key=lambda _class: _class.__name__):
             if logger is not None:
-                logger.info(f"* {str(cls)}")
+                logger.info(f"* {str(_class)}")
             else:
-                click.echo(f"* {cls.styled_str()}")
+                click.echo(f"* {_class.styled_str()}")
 
 
 def load_jobs(path: Path) -> List[Type[JobHint]]:
-    jobs = []
+    jobs: List[Type[JobHint]] = []
     for file in path.glob('**/*.py'):
         if file.parts[0][0] == '.':  # skip hidden
             continue
 
         module_name = ".".join(file.with_suffix("").parts)
         spec = spec_from_file_location(module_name, file)
+        if spec is None or spec.loader is None:
+            continue
         module = module_from_spec(spec)
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore
 
         jobs.extend(
             cls[1]
@@ -109,7 +117,7 @@ def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
     return [make_job_from_dict(job_dict) for job_dict in jobs_list]
 
 
-def run_jobs(jobs: List[JobHint] = None, classes: List[Type[JobHint]] = None, logger: Logger = None):
+def run_jobs(jobs: Iterable[JobHint] = (), classes: Iterable[Type[JobHint]] = (), logger: Union[Logger, None] = None):
     """Initializes :class:`regta.Scheduler` and starts passed jobs.
 
     Args:

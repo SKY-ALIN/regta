@@ -62,7 +62,7 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     logger_factory: Union[Callable, None] = load_object(logger_uri) if logger_uri else None
     logger: Union[Logger, None] = logger_factory() if logger_factory else None
 
-    show_jobs_info(jobs+classes, verbose=verbose, logger=logger)
+    show_jobs_info(jobs=jobs, classes=classes, verbose=verbose, logger=logger)
 
     try:
         run_jobs(jobs=jobs, classes=classes, logger=logger)
@@ -129,6 +129,4 @@ def new(name: str, job_type: str, code_style: str, path: Path):
 )
 def list_command(path: Path):
     """Shows the list of found jobs."""
-
-    jobs = load_jobs(path)
-    show_jobs_info(jobs, path=path, verbose=True)
+    show_jobs_info(classes=load_jobs(path), path=path, verbose=True)

@@ -42,3 +42,4 @@ jobs:
         source .venv/bin/activate
         flake8 regta
         find . -iname "*.py" -not -path "./.venv/*" | xargs pylint
+        mypy regta

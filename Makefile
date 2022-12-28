@@ -6,6 +6,7 @@ isort: # Sort import statements
 lint: # Check code quality
 	flake8
 	find . -iname "*.py" -not -path "./.venv/*" | xargs pylint
+	mypy regta
 test: # Run tests
 	pytest
 html_docs: # Build html docs

@@ -6,13 +6,14 @@ You can use the following entities to build your jobs:
     * Class :class:`ProcessJob` or :class:`process_job` decorator
 """
 
-from typing import Awaitable, Callable, Iterable, Type, Union
+from typing import Awaitable, Callable, Iterable, Type, Union, Dict
 
 from abc import ABC, abstractmethod
 import asyncio
 from datetime import datetime, timedelta, timezone
 from logging import Logger, LoggerAdapter
-from multiprocessing import Event as ProcessEvent, Process
+from multiprocessing import Event as ProcessEventFabric, Process
+from multiprocessing.synchronize import Event as ProcessEventObject
 from threading import Event as ThreadEvent, Thread
 
 import click
@@ -92,8 +93,12 @@ class BaseJob(AbstractJob):
             raise ValueError("Execute is not specified")
 
         use_ansi: bool = (logger is None and self.logger is None)
-        logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)
-        self.logger = JobLoggerAdapter(logger, job=self, use_ansi=use_ansi)
+        _logger: Logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)  # type: ignore
+        self.logger = JobLoggerAdapter(
+            _logger,
+            job=self,
+            use_ansi=use_ansi,
+        )
 
     def _get_seconds_till_to_execute(self) -> float:
         if isinstance(self.interval, timedelta):
@@ -137,7 +142,7 @@ class BaseSyncJob(BaseJob):
     .. autoattribute:: kwargs
     """
 
-    _blocker_class: Type[Union[ThreadEvent, ProcessEvent]]
+    _blocker_class: Union[Type[ThreadEvent], Callable[..., ProcessEventObject]]
 
     def __init__(
             self,
@@ -184,7 +189,7 @@ class ProcessJob(BaseSyncJob, Process):
     .. automethod:: regta.ProcessJob.run
     """
 
-    _blocker_class = ProcessEvent
+    _blocker_class = ProcessEventFabric
 
     def __init__(
             self,
@@ -319,7 +324,7 @@ process_job.__doc__ = (
     """
 )
 
-jobs_classes = {
+jobs_classes: Dict[JobTypes, Type[JobHint]] = {
     JobTypes.ASYNC: AsyncJob,
     JobTypes.THREAD: ThreadJob,
     JobTypes.PROCESS: ProcessJob,
