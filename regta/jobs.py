@@ -6,7 +6,7 @@ You can use the following entities to build your jobs:
     * Class :class:`ProcessJob` or :class:`process_job` decorator
 """
 
-from typing import Awaitable, Callable, Iterable, Type, Union, Dict
+from typing import Awaitable, Callable, Dict, Iterable, Type, Union
 
 from abc import ABC, abstractmethod
 import asyncio

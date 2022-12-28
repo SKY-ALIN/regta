@@ -1,4 +1,4 @@
-from typing import Any, List, Type, Union, Iterable, Sequence
+from typing import Any, Iterable, List, Sequence, Type, Union
 
 from datetime import timedelta
 from importlib import import_module
