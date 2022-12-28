@@ -1,22 +1,9 @@
-from logging import (
-    basicConfig,
-    Logger,
-    Formatter,
-    StreamHandler,
-    LoggerAdapter,
-    INFO,
-)
+from logging import basicConfig, Formatter, INFO, Logger, LoggerAdapter, StreamHandler
 import sys
 import traceback
 
 from click import style
-from click.utils import (
-    WIN,
-    auto_wrap_for_ansi,
-    resolve_color_default,
-    should_strip_ansi,
-    strip_ansi,
-)
+from click.utils import auto_wrap_for_ansi, resolve_color_default, should_strip_ansi, strip_ansi, WIN
 
 log_format = '%(asctime)s [%(job)s] [%(levelname)s] - %(message)s'
 basicConfig(format=log_format)

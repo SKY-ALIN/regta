@@ -6,15 +6,16 @@ Use following schedulers to build your system:
     * :class:`Scheduler` for all types of jobs (**recommended**).
 """
 
+from typing import List, Union
+
 from abc import ABC, abstractmethod
 import asyncio
-from typing import Union, List
-from threading import Thread
 import signal
+from threading import Thread
 import time
 
-from .jobs import AbstractJob, ProcessJob, ThreadJob, AsyncJob
-from .exceptions import StopService, IncorrectJobType
+from .exceptions import IncorrectJobType, StopService
+from .jobs import AbstractJob, AsyncJob, ProcessJob, ThreadJob
 
 
 class AbstractScheduler(ABC):

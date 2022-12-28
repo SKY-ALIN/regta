@@ -1,16 +1,13 @@
-from pathlib import Path
 from typing import Tuple
+
+from pathlib import Path
 import random
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from .jobs import jobs_classes
 from .enums import DecoratorNames, JobTypes
-from .utils import (
-    to_snake_case,
-    to_camel_case,
-    add_init_file,
-)
+from .jobs import jobs_classes
+from .utils import add_init_file, to_camel_case, to_snake_case
 
 env = Environment(
     loader=PackageLoader("regta"),

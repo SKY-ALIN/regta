@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from regta.templates import generate_oop_styled_job
 from regta.enums import JobTypes
+from regta.templates import generate_oop_styled_job
 
 JOBS_AMOUNT = int(os.getenv("JOBS_AMOUNT"))
 JOBS_TYPE = JobTypes(os.getenv("JOBS_TYPE"))

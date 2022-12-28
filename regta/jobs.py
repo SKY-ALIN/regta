@@ -6,13 +6,14 @@ You can use the following entities to build your jobs:
     * Class :class:`ProcessJob` or :class:`process_job` decorator
 """
 
+from typing import Awaitable, Callable, Iterable, Type, Union
+
 from abc import ABC, abstractmethod
 import asyncio
 from datetime import datetime, timedelta, timezone
-from typing import Awaitable, Callable, Union, Type, Iterable
-from threading import Thread, Event as ThreadEvent
-from multiprocessing import Process, Event as ProcessEvent
 from logging import Logger, LoggerAdapter
+from multiprocessing import Event as ProcessEvent, Process
+from threading import Event as ThreadEvent, Thread
 
 import click
 from regta_period import AbstractPeriod
