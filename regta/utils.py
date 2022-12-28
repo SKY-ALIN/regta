@@ -60,7 +60,7 @@ def show_jobs_info(jobs: list, path: Path = None, logger: Logger = None, verbose
         for job in sorted(jobs, key=lambda j: j.__name__ if inspect.isclass(j) else j.__class__.__name__):
             cls: Type[JobHint] = job if inspect.isclass(job) else job.__class__
             if logger is not None:
-                logger.info(f"* {cls.__str__()}")
+                logger.info(f"* {str(cls)}")
             else:
                 click.echo(f"* {cls.styled_str()}")
 
