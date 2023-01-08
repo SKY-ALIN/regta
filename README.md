@@ -9,7 +9,7 @@
 
 ### Core Features
 
-- **[Various job types](https://regta.alinsky.tech/user_guide/make_jobs)** - Create async, thread-based,
+- **[Various Job Types](https://regta.alinsky.tech/user_guide/make_jobs)** - Create async, thread-based,
   or process-based jobs depending on your goals.
 
 
@@ -17,11 +17,11 @@
   specially designed `Period` for highly responsible jobs.
 
 
-- **[Multi-paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
+- **[Multi-Paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
   or functional styled jobs. Also, Regta provides an interface to reuse already written code by a config.
 
 
-- **[CLI interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
+- **[CLI Interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
   to start, list and create jobs by template.
 
 
@@ -42,18 +42,21 @@ You can check if Regta was installed correctly with the following command `regta
 To write async job just use `@regta.async_job()` decorator.
 
 ```python
-# jobs/my_job.py
+# jobs/my_jobs.py
 
 from datetime import timedelta
 from regta import async_job, Period
+
 
 @async_job(Period().every(10).seconds)
 async def my_period_based_job():
     return "1. Hello world! This is just a log message."
 
+
 @async_job(timedelta(seconds=10))
 async def my_timedelta_based_job():
     return "2. You may use `timedelta` or `Period` as interval."
+
 
 @async_job(Period().on.sunday.at("18:35").by("Asia/Almaty"))
 async def my_sunday_job():

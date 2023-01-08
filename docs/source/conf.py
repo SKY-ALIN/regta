@@ -35,9 +35,12 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.intersphinx",
     "m2r2",
     "sphinx_copybutton",
 ]
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 source_suffix = [".rst", ".md"]
 

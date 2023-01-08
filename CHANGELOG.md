@@ -1,3 +1,6 @@
+## 0.3.0 (in progress)
+* Add `regta-period` package support
+
 ## 0.2.0 (31.3.2022)
 * Add logging
 * Add decorator job style (`@regta.async_job`, `@regta.thread_job`, `@regta.process_job`)

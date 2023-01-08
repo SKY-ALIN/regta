@@ -37,17 +37,17 @@ how to send regular notifications to a Slack channel below:
 
 
     class Slack:
-        URL: str  # secret URL from env
+        url: str  # secret URL from env
 
         def __init__(self, channel: str):
             self.channel = channel
 
         async def send_message(self, message: str):
             async with ClientSession(headers={"Content-type": "application/json"}) as session:
-                await session.post(self.URL, json={"text": message, "channel": self.channel})
+                await session.post(self.url, json={"text": message, "channel": self.channel})
 
 
-    @regta.async_job(interval=timedelta(days=7))
+    @regta.async_job(timedelta(days=7))
     async def weekly_report():
         data = "Some report data..."
         await Slack("my-channel").send_message(data)
@@ -72,7 +72,7 @@ how to mark users as inactive for the synchronous version of sqlalchemy:
     from models import User
 
 
-    @regta.thread_job(interval=timedelta(hours=1))
+    @regta.thread_job(timedelta(hours=1))
     def mark_users_as_inactive():
         with Session() as session:
             marked_users_ids = session.execute(
@@ -121,7 +121,7 @@ ML model and send the result on a Telegram channel:
             self.bot.send_message(self.CHANNEL_ID, text)
 
 
-    @regta.process_job(interval=timedelta(hours=24))
+    @regta.process_job(timedelta(hours=24))
     def send_temperature_prediction():
         prediction = my_model.predict(get_last_temperature_for_a_week())
         result = float(prediction[0])
