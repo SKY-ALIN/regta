@@ -1,13 +1,23 @@
 [tool.poetry]
 name = "regta"
-version = "0.2.0"
-description = "Lightweight framework to create and execute periodic async and sync jobs on different processes, threads and event loops."
+version = "0.3.0"
+description = "Production-ready scheduler with async, multithreading and multiprocessing support."
 authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://regta.alinsky.tech"
 repository = "https://github.com/SKY-ALIN/regta"
-keywords = ["periodic", "regular", "async", "jobs", "sync", "tasks", "cron"]
+keywords = [
+    "scheduler",
+    "multithreading",
+    "multiprocessing",
+    "async",
+    "jobs",
+    "tasks",
+    "cron",
+    "periodic",
+    "regular",
+]
 include = [
     "LICENSE",
 ]
