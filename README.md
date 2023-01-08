@@ -13,49 +13,55 @@
   or process-based jobs depending on your goals.
 
 
-- **[Support different code styles](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
-  or functional styled jobs. Regta also provides an interface to reuse user's already written code.
+- **[Flexible Intervals](https://regta.alinsky.tech/user_guide/intervals)** - Use standard `timedelta` object or
+  specially designed `Period` for highly responsible jobs.
 
 
-- **[CLI interface to work with jobs](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
-  to list and start available written jobs.
+- **[Multi-paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
+  or functional styled jobs. Also, Regta provides an interface to reuse already written code with config.
 
 
-- **[Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard and define your own logging.
+- **[CLI interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
+  to start, list and create jobs by template.
+
+
+- **[Professional Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard logger
+  and define your own. ANSI coloring is supported.
 
 ---
 
 ### Installation
-Install using `pip install regta` or `poetry add regta`. 
-You can check if **regta** was installed correctly with the following 
-command `regta --help`.
+Install using `pip install regta` or `poetry add regta`.
+
+If you use python < 3.9, then also install backports: `pip install "backports.zoneinfo[tzdata]"`.
+
+You can check if Regta was installed correctly with the following command `regta --version`.
 
 ### Example
 To write async job just use `@regta.async_job()` decorator.
 ```python
 # jobs/my_job.py
 
-from datetime import timedelta
-import regta
+from regta import async_job, Period
 
-@regta.async_job(timedelta(seconds=5))
+@async_job(Period().every(10).seconds)
 async def my_basic_job():
     return "Hello world! This is just a log message."
 ```
-See more about various job types 
+Read more about various job types 
 [here](https://regta.alinsky.tech/user_guide/make_jobs).
 
 ### Start Up
 To start jobs use `regta run` command:
 ```shell
 $ regta run
-> [1] jobs were found.
-> 2022-03-30 02:47:18,020 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2022-03-30 02:47:23,024 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2022-03-30 02:47:28,026 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
+[1] jobs were found.
+> 2023-01-08 16:53:00,001 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
+> 2023-01-08 16:53:10,002 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
+> 2023-01-08 16:53:20,001 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
 .  .  .
 ```
-See CLI reference [here](https://regta.alinsky.tech/cli_reference).
+Read CLI reference [here](https://regta.alinsky.tech/cli_reference).
 
 ---
 
