@@ -18,7 +18,7 @@
 
 
 - **[Multi-paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
-  or functional styled jobs. Also, Regta provides an interface to reuse already written code with config.
+  or functional styled jobs. Also, Regta provides an interface to reuse already written code by a config.
 
 
 - **[CLI interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
@@ -38,29 +38,47 @@ If you use python < 3.9, then also install backports: `pip install "backports.zo
 You can check if Regta was installed correctly with the following command `regta --version`.
 
 ### Example
+
 To write async job just use `@regta.async_job()` decorator.
+
 ```python
 # jobs/my_job.py
 
+from datetime import timedelta
 from regta import async_job, Period
 
 @async_job(Period().every(10).seconds)
-async def my_basic_job():
-    return "Hello world! This is just a log message."
+async def my_period_based_job():
+    return "1. Hello world! This is just a log message."
+
+@async_job(timedelta(seconds=10))
+async def my_timedelta_based_job():
+    return "2. You may use `timedelta` or `Period` as interval."
+
+@async_job(Period().on.sunday.at("18:35").by("Asia/Almaty"))
+async def my_sunday_job():
+    return "3. `Period` is recommended for highly responsible jobs because it does not accumulate shift."
 ```
+
 Read more about various job types 
 [here](https://regta.alinsky.tech/user_guide/make_jobs).
 
 ### Start Up
+
 To start jobs use `regta run` command:
+
 ```shell
 $ regta run
-[1] jobs were found.
-> 2023-01-08 16:53:00,001 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2023-01-08 16:53:10,002 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2023-01-08 16:53:20,001 [temp.test:my_basic_job] [INFO] - Hello world! This is just a log message.
+> [3] jobs were found.
+> 2023-01-08 18:31:00,005 [jobs.my_jobs:my_period_based_job] [INFO] - 1. Hello world! This is just a log message.
+> 2023-01-08 18:31:05,622 [jobs.my_jobs:my_timedelta_based_job] [INFO] - 2. You may use `timedelta` or `Period` as interval.
+.  .  .
+> 2023-01-08 18:34:50,002 [jobs.my_jobs:my_period_based_job] [INFO] - 1. Hello world! This is just a log message.
+> 2023-01-08 18:34:55,689 [jobs.my_jobs:my_timedelta_based_job] [INFO] - 2. You may use `timedelta` or `Period` as interval.
+> 2023-01-08 18:35:00,001 [jobs.my_jobs:my_sunday_job] [INFO] - 3. `Period` is recommended for highly responsible jobs because it does not accumulate shift.
 .  .  .
 ```
+
 Read CLI reference [here](https://regta.alinsky.tech/cli_reference).
 
 ---
