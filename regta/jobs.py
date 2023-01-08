@@ -266,8 +266,8 @@ class AsyncJob(BaseJob):
 
     async def run(self):
         while True:
-            await self._execute()
             await asyncio.sleep(self._get_seconds_till_to_execute())
+            await self._execute()
 
     async def stop(self): pass
 
