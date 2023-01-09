@@ -9,53 +9,80 @@
 
 ### Core Features
 
-- **[Various job types](https://regta.alinsky.tech/user_guide/make_jobs)** - Create async, thread-based,
+- **[Various Job Types](https://regta.alinsky.tech/user_guide/make_jobs)** - Create async, thread-based,
   or process-based jobs depending on your goals.
 
 
-- **[Support different code styles](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
-  or functional styled jobs. Regta also provides an interface to reuse user's already written code.
+- **[Flexible Intervals](https://regta.alinsky.tech/user_guide/interval_types)** - Use standard `timedelta`
+  object or specially designed `Period` for highly responsible jobs.
 
 
-- **[CLI interface to work with jobs](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
-  to list and start available written jobs.
+- **[Multi-Paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
+  or functional styled jobs. Also, Regta provides an interface to reuse already written code by a config.
 
 
-- **[Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard and define your own logging.
+- **[CLI Interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool
+  to start, list and create jobs by template.
+
+
+- **[Professional Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard logger
+  and define your own. ANSI coloring is supported.
 
 ---
 
 ### Installation
-Install using `pip install regta` or `poetry add regta`. 
-You can check if **regta** was installed correctly with the following 
-command `regta --help`.
+Install using `pip install regta` or `poetry add regta`.
+
+If you use python < 3.9, then also install backports: `pip install "backports.zoneinfo[tzdata]"`.
+
+You can check if Regta was installed correctly with the following command `regta --version`.
 
 ### Example
+
 To write async job just use `@regta.async_job()` decorator.
+
 ```python
-# jobs/my_job.py
+# jobs/my_jobs.py
 
 from datetime import timedelta
-import regta
+from regta import async_job, Period
 
-@regta.async_job(timedelta(seconds=5))
-async def my_basic_job():
-    return "Hello world! This is just a log message."
+
+@async_job(Period().every(10).seconds)
+async def my_period_based_job():
+    return "1. Hello world! This is just a log message."
+
+
+@async_job(timedelta(seconds=10))
+async def my_timedelta_based_job():
+    return "2. You may use `timedelta` or `Period` as interval."
+
+
+@async_job(Period().on.sunday.at("18:35").by("Asia/Almaty"))
+async def my_sunday_job():
+    return "3. `Period` is recommended for highly responsible jobs because it does not accumulate shift."
 ```
-See more about various job types 
+
+Read more about various job types 
 [here](https://regta.alinsky.tech/user_guide/make_jobs).
 
 ### Start Up
+
 To start jobs use `regta run` command:
+
 ```shell
 $ regta run
-> [1] jobs were found.
-> 2022-03-30 02:47:18,020 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2022-03-30 02:47:23,024 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
-> 2022-03-30 02:47:28,026 [jobs.my_job:my_basic_job] [INFO] - Hello world! This is just a log message.
+> [3] jobs were found.
+> 2023-01-08 18:31:00,005 [jobs.my_jobs:my_period_based_job] [INFO] - 1. Hello world! This is just a log message.
+> 2023-01-08 18:31:05,622 [jobs.my_jobs:my_timedelta_based_job] [INFO] - 2. You may use `timedelta` or `Period` as interval.
+.  .  .
+> 2023-01-08 18:34:50,002 [jobs.my_jobs:my_period_based_job] [INFO] - 1. Hello world! This is just a log message.
+> 2023-01-08 18:34:55,689 [jobs.my_jobs:my_timedelta_based_job] [INFO] - 2. You may use `timedelta` or `Period` as interval.
+> 2023-01-08 18:35:00,001 [jobs.my_jobs:my_sunday_job] [INFO] - 3. `Period` is recommended for highly responsible jobs because it does not accumulate shift.
 .  .  .
 ```
-See CLI reference [here](https://regta.alinsky.tech/cli_reference).
+
+Read CLI reference [here](https://regta.alinsky.tech/cli_reference).
 
 ---
 

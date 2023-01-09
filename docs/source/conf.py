@@ -12,6 +12,7 @@
 
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../../'))
 
 
@@ -22,7 +23,7 @@ copyright = '2022, Vladimir Alinsky'  # pylint: disable=redefined-builtin
 author = 'Vladimir Alinsky'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -34,9 +35,15 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.intersphinx",
     "m2r2",
     "sphinx_copybutton",
 ]
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'regta_period': ('https://regta-period.alinsky.tech', None),
+}
 
 source_suffix = [".rst", ".md"]
 

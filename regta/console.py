@@ -3,22 +3,17 @@ different processes, threads, and event loops.
 See details on the homepage at https://github.com/SKY-ALIN/regta/
 """
 
-from pathlib import Path
-from typing import List, Callable, Optional
+from typing import Callable, List, Union
+
 from logging import Logger
+from pathlib import Path
 
 import click
 
 from . import __version__
 from .enums import CodeStyles, JobTypes
 from .templates import generate_decorator_styled_job, generate_oop_styled_job
-from .utils import (
-    make_jobs_from_list,
-    load_object,
-    load_jobs,
-    run_jobs,
-    show_jobs_info,
-)
+from .utils import load_jobs, load_object, make_jobs_from_list, run_jobs, show_jobs_info
 
 
 @click.group(help=__doc__)
@@ -64,10 +59,10 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     else:
         classes = load_jobs(path)
 
-    logger_factory: Optional[Callable] = load_object(logger_uri) if logger_uri else None
-    logger: Optional[Logger] = logger_factory() if logger_factory else None
+    logger_factory: Union[Callable, None] = load_object(logger_uri) if logger_uri else None
+    logger: Union[Logger, None] = logger_factory() if logger_factory else None
 
-    show_jobs_info(jobs+classes, verbose=verbose, logger=logger)
+    show_jobs_info(jobs=jobs, classes=classes, verbose=verbose, logger=logger)
 
     try:
         run_jobs(jobs=jobs, classes=classes, logger=logger)
@@ -134,6 +129,4 @@ def new(name: str, job_type: str, code_style: str, path: Path):
 )
 def list_command(path: Path):
     """Shows the list of found jobs."""
-
-    jobs = load_jobs(path)
-    show_jobs_info(jobs, path=path, verbose=True)
+    show_jobs_info(classes=load_jobs(path), path=path, verbose=True)

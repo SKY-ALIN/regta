@@ -6,15 +6,16 @@ Use following schedulers to build your system:
     * :class:`Scheduler` for all types of jobs (**recommended**).
 """
 
+from typing import List, Union
+
 from abc import ABC, abstractmethod
 import asyncio
-from typing import Union, List
-from threading import Thread
 import signal
+from threading import Thread
 import time
 
-from .jobs import AbstractJob, ProcessJob, ThreadJob, AsyncJob
-from .exceptions import StopService, IncorrectJobType
+from .exceptions import IncorrectJobType, StopService
+from .jobs import AbstractJob, AsyncJob, ProcessJob, ThreadJob
 
 
 class AbstractScheduler(ABC):
@@ -85,7 +86,7 @@ class SyncScheduler(SyncBlocking, AbstractScheduler):
     _thread_jobs: List[ThreadJob] = []
     _process_jobs: List[ProcessJob] = []
 
-    def add_job(self, job: Union[ThreadJob, ProcessJob]):
+    def add_job(self, job: Union[ThreadJob, ProcessJob]):  # type: ignore[override]
         if isinstance(job, ThreadJob):
             self._thread_jobs.append(job)
         elif isinstance(job, ProcessJob):
@@ -94,7 +95,7 @@ class SyncScheduler(SyncBlocking, AbstractScheduler):
             raise IncorrectJobType(job, self)
 
     @staticmethod
-    def __start_jobs(jobs: List[Union[ThreadJob, ProcessJob]], block: bool):
+    def __start_jobs(jobs: Union[List[ThreadJob], List[ProcessJob]], block: bool):
         for job in jobs:
             job.daemon = not block
             job.start()
@@ -126,7 +127,7 @@ class AsyncScheduler(AbstractScheduler, Thread):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
-    def add_job(self, job: AsyncJob):
+    def add_job(self, job: AsyncJob):  # type: ignore[override]
         if isinstance(job, AsyncJob):
             self._async_jobs.append(job)
         else:
@@ -147,10 +148,10 @@ class AsyncScheduler(AbstractScheduler, Thread):
 
 
 class Scheduler(SyncBlocking, AbstractScheduler):
-    sync_scheduler: SyncScheduler = None
-    async_scheduler: AsyncScheduler = None
+    sync_scheduler: Union[SyncScheduler, None] = None
+    async_scheduler: Union[AsyncScheduler, None] = None
 
-    def add_job(self, job: Union[AsyncJob, ThreadJob, ProcessJob]):
+    def add_job(self, job: Union[AsyncJob, ThreadJob, ProcessJob]):  # type: ignore[override]
         if isinstance(job, AsyncJob):
             if self.async_scheduler is None:
                 self.async_scheduler = AsyncScheduler()

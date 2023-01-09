@@ -1,13 +1,23 @@
 [tool.poetry]
 name = "regta"
-version = "0.2.0"
-description = "Lightweight framework to create and execute periodic async and sync jobs on different processes, threads and event loops."
+version = "0.3.0"
+description = "Production-ready scheduler with async, multithreading and multiprocessing support."
 authors = ["Vladimir Alinsky <Vladimir@Alinsky.tech>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://regta.alinsky.tech"
 repository = "https://github.com/SKY-ALIN/regta"
-keywords = ["periodic", "regular", "async", "jobs", "sync", "tasks", "cron"]
+keywords = [
+    "scheduler",
+    "multithreading",
+    "multiprocessing",
+    "async",
+    "jobs",
+    "tasks",
+    "cron",
+    "periodic",
+    "regular",
+]
 include = [
     "LICENSE",
 ]
@@ -18,15 +28,17 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Environment :: Console",
     "Framework :: AsyncIO",
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7.2"
 click = "^8.1.3"
 Jinja2 = "^3.1.2"
 asyncio = "^3.4.3"
+regta-period = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.0"
@@ -36,6 +48,9 @@ Sphinx = "^4"
 furo = "^2022.9.29"
 m2r2 = "^0.3.2"
 sphinx-copybutton = "^0.5.0"
+no-optional = "^0.4.0"
+isort = "^5.11.4"
+mypy = "^0.991"
 
 [tool.poetry.scripts]
 regta = "regta.console:main"

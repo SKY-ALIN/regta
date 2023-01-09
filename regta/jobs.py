@@ -6,15 +6,18 @@ You can use the following entities to build your jobs:
     * Class :class:`ProcessJob` or :class:`process_job` decorator
 """
 
+from typing import Awaitable, Callable, Dict, Iterable, Type, Union
+
 from abc import ABC, abstractmethod
 import asyncio
-from datetime import timedelta
-from typing import Awaitable, Callable, Union, Type, Iterable, Optional
-from threading import Thread, Event as ThreadEvent
-from multiprocessing import Process, Event as ProcessEvent
+from datetime import datetime, timedelta, timezone
 from logging import Logger, LoggerAdapter
+from multiprocessing import Event as ProcessEventFabric, Process
+from multiprocessing.synchronize import Event as ProcessEventObject
+from threading import Event as ThreadEvent, Thread
 
 import click
+from regta_period import AbstractPeriod
 
 from .enums import JobTypes
 from .logging import JobLoggerAdapter, make_default_logger
@@ -23,10 +26,8 @@ from .logging import JobLoggerAdapter, make_default_logger
 class AbstractJob(ABC):
     """Interface which every job base implement."""
 
-    interval: timedelta = NotImplemented
-    """A timedelta object which describe interval between every
-    :meth:`.execute` call.
-    """
+    interval: Union[timedelta, AbstractPeriod] = NotImplemented
+    """Interval between every :meth:`.execute` call."""
 
     @abstractmethod
     def stop(self):
@@ -53,15 +54,13 @@ class AbstractJob(ABC):
 class BaseJob(AbstractJob):
     """Base job class which implements common logic."""
 
-    interval: timedelta = None
-    """A timedelta object which describe interval between every
-    :attr:`.execute` call.
-    """
-    execute: Callable = None
+    interval: Union[timedelta, AbstractPeriod, None] = None
+    """Interval between every :meth:`.execute` call."""
+    execute: Union[Callable, None] = None
     """The function on which job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
     """
-    logger: Union[Logger, LoggerAdapter] = None
+    logger: Union[Logger, LoggerAdapter, None] = None
     """Logger writes all results of :attr:`.execute` function and
     its exceptions. If the logger isn't specified, regta will use std output.
     """
@@ -70,7 +69,14 @@ class BaseJob(AbstractJob):
     kwargs: dict = {}
     """Key-word args will be passed into :attr:`.execute`."""
 
-    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
+    def __init__(
+            self,
+            *args,
+            interval: Union[timedelta, AbstractPeriod, None] = None,
+            execute: Union[Callable, None] = None,
+            logger: Union[Logger, None] = None,
+            **kwargs,
+    ):
         self.args = args
         self.kwargs = kwargs
 
@@ -83,8 +89,23 @@ class BaseJob(AbstractJob):
             raise ValueError("Execute is not specified")
 
         use_ansi: bool = (logger is None and self.logger is None)
-        logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)
-        self.logger = JobLoggerAdapter(logger, job=self, use_ansi=use_ansi)
+        _logger: Logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)  # type: ignore
+        self.logger = JobLoggerAdapter(
+            _logger,
+            job=self,
+            use_ansi=use_ansi,
+        )
+
+    def _get_seconds_till_to_execute(self) -> float:
+        if isinstance(self.interval, timedelta):
+            return self.interval.total_seconds()
+        if isinstance(self.interval, AbstractPeriod):
+            if self.interval.is_timezone_in_use:
+                current_moment = datetime.now(timezone.utc)
+            else:
+                current_moment = datetime.utcnow()
+            return self.interval.get_interval(current_moment).total_seconds()
+        raise ValueError(f"Regta doesn't support '{self.interval.__class__.__name__}' type for interval.")
 
     @abstractmethod
     def run(self):
@@ -117,9 +138,16 @@ class BaseSyncJob(BaseJob):
     .. autoattribute:: kwargs
     """
 
-    _blocker_class: Type[Union[ThreadEvent, ProcessEvent]]
+    _blocker_class: Union[Type[ThreadEvent], Callable[..., ProcessEventObject]]
 
-    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
+    def __init__(
+            self,
+            *args,
+            interval: Union[timedelta, AbstractPeriod, None] = None,
+            execute: Union[Callable, None] = None,
+            logger: Union[Logger, None] = None,
+            **kwargs,
+    ):
         super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
         self._blocker = self._blocker_class()
 
@@ -132,13 +160,12 @@ class BaseSyncJob(BaseJob):
 
     def __block(self):
         try:
-            return self._blocker.wait(self.interval.total_seconds())
+            return self._blocker.wait(self._get_seconds_till_to_execute())
         except KeyboardInterrupt:
             pass
         return True
 
     def run(self):
-        self._execute()
         while not self.__block():
             self._execute()
 
@@ -158,9 +185,16 @@ class ProcessJob(BaseSyncJob, Process):
     .. automethod:: regta.ProcessJob.run
     """
 
-    _blocker_class = ProcessEvent
+    _blocker_class = ProcessEventFabric
 
-    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
+    def __init__(
+            self,
+            *args,
+            interval: Union[timedelta, AbstractPeriod, None] = None,
+            execute: Union[Callable, None] = None,
+            logger: Union[Logger, None] = None,
+            **kwargs,
+    ):
         Process.__init__(self)
         super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
@@ -186,7 +220,14 @@ class ThreadJob(BaseSyncJob, Thread):
 
     _blocker_class = ThreadEvent
 
-    def __init__(self, *args, interval: timedelta = None, execute: Callable = None, logger: Logger = None, **kwargs):
+    def __init__(
+            self,
+            *args,
+            interval: Union[timedelta, AbstractPeriod, None] = None,
+            execute: Union[Callable, None] = None,
+            logger: Union[Logger, None] = None,
+            **kwargs,
+    ):
         Thread.__init__(self)
         super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
 
@@ -207,7 +248,7 @@ class AsyncJob(BaseJob):
     .. autoattribute:: kwargs
     """
 
-    execute: Callable[..., Awaitable[Optional[str]]] = None
+    execute: Union[Callable[..., Awaitable[Union[str, None]]], None] = None
     """The async function on which job will be based. Must be rewritten or
     passed. It'll be called every :attr:`.interval`.
     """
@@ -221,8 +262,8 @@ class AsyncJob(BaseJob):
 
     async def run(self):
         while True:
+            await asyncio.sleep(self._get_seconds_till_to_execute())
             await self._execute()
-            await asyncio.sleep(self.interval.total_seconds())
 
     async def stop(self): pass
 
@@ -231,7 +272,7 @@ JobHint = Union[AsyncJob, ThreadJob, ProcessJob]
 
 
 def _make_decorator(_class: Type[JobHint]):
-    def decorator(interval: timedelta, *args, **kwargs):
+    def decorator(interval: Union[timedelta, AbstractPeriod], *args, **kwargs):
         def wrapper(func: Callable):
             return type(
                 func.__name__,
@@ -253,7 +294,7 @@ async_job.__doc__ = (
     """Decorator makes :class:`AsyncJob` from async function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -263,7 +304,7 @@ thread_job.__doc__ = (
     """Decorator makes :class:`ThreadJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -273,13 +314,13 @@ process_job.__doc__ = (
     """Decorator makes :class:`ProcessJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
 )
 
-jobs_classes = {
+jobs_classes: Dict[JobTypes, Type[JobHint]] = {
     JobTypes.ASYNC: AsyncJob,
     JobTypes.THREAD: ThreadJob,
     JobTypes.PROCESS: ProcessJob,
