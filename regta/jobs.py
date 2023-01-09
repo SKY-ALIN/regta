@@ -27,9 +27,7 @@ class AbstractJob(ABC):
     """Interface which every job base implement."""
 
     interval: Union[timedelta, AbstractPeriod] = NotImplemented
-    """A timedelta object which describe interval between every
-    :meth:`.execute` call.
-    """
+    """Interval between every :meth:`.execute` call."""
 
     @abstractmethod
     def stop(self):
@@ -57,9 +55,7 @@ class BaseJob(AbstractJob):
     """Base job class which implements common logic."""
 
     interval: Union[timedelta, AbstractPeriod, None] = None
-    """A timedelta object which describe interval between every
-    :attr:`.execute` call.
-    """
+    """Interval between every :meth:`.execute` call."""
     execute: Union[Callable, None] = None
     """The function on which job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
@@ -298,7 +294,7 @@ async_job.__doc__ = (
     """Decorator makes :class:`AsyncJob` from async function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -308,7 +304,7 @@ thread_job.__doc__ = (
     """Decorator makes :class:`ThreadJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """
@@ -318,7 +314,7 @@ process_job.__doc__ = (
     """Decorator makes :class:`ProcessJob` from function.
 
     Args:
-        interval: A timedelta object which describes the interval between every call.
+        interval: Interval between every call.
         *args: Will be passed into the function.
         **kwargs: Will be passed into the function.
     """

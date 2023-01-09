@@ -40,7 +40,10 @@ extensions = [
     "sphinx_copybutton",
 ]
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'regta_period': ('https://regta-period.alinsky.tech', None),
+}
 
 source_suffix = [".rst", ".md"]
 

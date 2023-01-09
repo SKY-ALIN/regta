@@ -7,7 +7,7 @@ Quick Start
    :hidden:
 
    self
-   intervals
+   interval_types
    make_jobs
    oop_style
    in_code_start

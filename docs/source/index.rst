@@ -3,6 +3,18 @@ Overview
 
 **Regta** is a production-ready scheduler with async, multithreading and multiprocessing support for Python.
 
+.. image:: https://img.shields.io/pypi/pyversions/regta.svg
+   :target: https://github.com/SKY-ALIN/regta
+
+.. image:: https://github.com/SKY-ALIN/regta/actions/workflows/code-quality.yml/badge.svg
+   :target: https://github.com/SKY-ALIN/regta
+
+.. image:: https://badge.fury.io/py/regta.svg
+   :target: https://pypi.org/project/regta/
+
+.. image:: https://img.shields.io/github/license/SKY-ALIN/regta.svg
+   :target: https://github.com/SKY-ALIN/regta/blob/main/LICENSE
+
 .. seealso::
    You can find out how and why to use various job types
    :ref:`here <jobs-types>`.
