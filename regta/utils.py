@@ -4,7 +4,7 @@ from datetime import timedelta
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 import inspect
-from logging import Logger
+from logging import Logger, LoggerAdapter
 from pathlib import Path
 import re
 import string
@@ -37,39 +37,29 @@ def add_init_file(path: Path):
 
 
 def show_jobs_info(
+        logger: Union[Logger, LoggerAdapter],
         jobs: Sequence[JobHint] = (),
         classes: Sequence[Type[JobHint]] = (),
         path: Union[Path, None] = None,
-        logger: Union[Logger, None] = None,
         verbose: bool = False,
+        use_ansi: bool = True,
 ):
     jobs_count = (len(jobs)+len(classes))
     end_char = ':' if verbose and jobs_count > 0 else '.'
-    if logger is not None:
-        path_str = (
-            f" at {path}/'"
-            if path is not None
-            else ""
-        )
-        logger.info(f"[{jobs_count}] jobs were found{path_str}{end_char}")
-    else:
-        count = click.style(
-            jobs_count,
-            fg='green' if jobs_count > 0 else 'red'
-        )
-        path_str = (
-            f" at {click.style(f'{path}/', fg='green')}"
-            if path is not None
-            else ""
-        )
-        click.echo(f"[{count}] jobs were found{path_str}{end_char}")
+    count = click.style(
+        jobs_count,
+        fg='green' if jobs_count > 0 else 'red',
+    ) if use_ansi else jobs_count
+    path_str = (
+        (f" at {click.style(f'{path}/', fg='green')}" if use_ansi else f" at {path}/")
+        if path is not None
+        else ""
+    )
+    logger.info(f"[{count}] jobs were found{path_str}{end_char}")
 
     if verbose:
         for _class in sorted(list(classes) + [job.__class__ for job in jobs], key=lambda _class: _class.__name__):
-            if logger is not None:
-                logger.info(f"* {str(_class)}")
-            else:
-                click.echo(f"* {_class.styled_str()}")
+            logger.info(f"* {_class.get_styled_job_name() if use_ansi else _class.get_plain_job_name()}")
 
 
 def load_jobs(path: Path) -> List[Type[JobHint]]:
