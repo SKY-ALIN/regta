@@ -12,6 +12,7 @@ import click
 
 from . import __version__
 from .enums import CodeStyles, JobTypes
+from .logging import empty_log_format, JobLoggerAdapter, make_default_logger, prod_log_format
 from .templates import generate_decorator_styled_job, generate_oop_styled_job
 from .utils import load_jobs, load_object, make_jobs_from_list, run_jobs, show_jobs_info
 
@@ -51,6 +52,9 @@ def main(): pass
 def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     """Starts all jobs."""
 
+    use_ansi = True
+    prod = True
+
     jobs = []
     classes = []
     if jobs_list_uri:
@@ -59,24 +63,28 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
     else:
         classes = load_jobs(path)
 
-    logger_factory: Union[Callable, None] = load_object(logger_uri) if logger_uri else None
-    logger: Union[Logger, None] = logger_factory() if logger_factory else None
+    logger_factory: Union[Callable[[], Logger], None] = load_object(logger_uri) if logger_uri else None
+    logger: Logger = (
+        logger_factory()
+        if logger_factory
+        else make_default_logger(use_ansi=use_ansi, fmt=(prod_log_format if prod else empty_log_format))
+    )
+    wrapped_logger = JobLoggerAdapter(
+        logger,
+        plain_job_name='regta',
+        styled_job_name=click.style('regta', fg='magenta'),
+        use_ansi=use_ansi,
+    )
 
-    show_jobs_info(jobs=jobs, classes=classes, verbose=verbose, logger=logger)
+    show_jobs_info(jobs=jobs, classes=classes, verbose=verbose, logger=wrapped_logger, use_ansi=use_ansi)
 
     try:
         run_jobs(jobs=jobs, classes=classes, logger=logger)
     except ValueError as e:
-        if logger is not None:
-            logger.info(str(e))
-        else:
-            click.secho(str(e), fg='red')
+        wrapped_logger.info(click.style(str(e), fg='red') if use_ansi else str(e))
     else:
         end_str = "All jobs are closed correctly."
-        if logger is not None:
-            logger.info(end_str)
-        else:
-            click.secho(end_str, fg='green')
+        wrapped_logger.info(click.style(end_str, fg='green') if use_ansi else end_str)
 
 
 @main.command()
@@ -129,4 +137,9 @@ def new(name: str, job_type: str, code_style: str, path: Path):
 )
 def list_command(path: Path):
     """Shows the list of found jobs."""
-    show_jobs_info(classes=load_jobs(path), path=path, verbose=True)
+    show_jobs_info(
+        classes=load_jobs(path),
+        path=path,
+        verbose=True,
+        logger=make_default_logger(use_ansi=True, fmt=empty_log_format),
+    )

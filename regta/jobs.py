@@ -75,6 +75,7 @@ class BaseJob(AbstractJob):
             interval: Union[timedelta, AbstractPeriod, None] = None,
             execute: Union[Callable, None] = None,
             logger: Union[Logger, None] = None,
+            use_ansi: bool = True,
             **kwargs,
     ):
         self.args = args
@@ -88,11 +89,11 @@ class BaseJob(AbstractJob):
         if self.execute is None:
             raise ValueError("Execute is not specified")
 
-        use_ansi: bool = (logger is None and self.logger is None)
-        _logger: Logger = logger or self.logger or make_default_logger(use_ansi=use_ansi)  # type: ignore
+        _logger: Logger = self.logger or logger or make_default_logger(use_ansi=use_ansi)  # type: ignore
         self.logger = JobLoggerAdapter(
             _logger,
-            job=self,
+            plain_job_name=self.get_plain_job_name(),
+            styled_job_name=self.get_styled_job_name(),
             use_ansi=use_ansi,
         )
 
@@ -123,7 +124,11 @@ class BaseJob(AbstractJob):
         return f"{cls.__module__}:{cls.__name__}"
 
     @classmethod
-    def styled_str(cls):
+    def get_plain_job_name(cls):
+        return f"{cls.__module__}:{cls.__name__}"
+
+    @classmethod
+    def get_styled_job_name(cls):
         return f"{cls.__module__}:{click.style(cls.__name__, fg='blue')}"
 
 

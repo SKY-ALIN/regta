@@ -1,14 +1,14 @@
 from typing import Dict
 
-from logging import basicConfig, Formatter, INFO, Logger, LoggerAdapter, StreamHandler
+from logging import Formatter, INFO, Logger, LoggerAdapter, StreamHandler
 import sys
 import traceback
 
 from click import style
 from click.utils import auto_wrap_for_ansi, resolve_color_default, should_strip_ansi, strip_ansi, WIN
 
-log_format = '%(asctime)s [%(job)s] [%(levelname)s] - %(message)s'
-basicConfig(format=log_format)
+prod_log_format = '%(asctime)s [%(job)s] [%(levelname)s] - %(message)s'
+empty_log_format = '%(message)s'
 
 
 class BorgSingletonMeta(type):
@@ -23,8 +23,17 @@ class BorgSingletonMeta(type):
 class ClickFormatter(Formatter):
     def formatException(self, ei) -> str:
         exc_class, exc_info, exc_traceback = ei
+
+        chain = []
+        for line in traceback.format_tb(exc_traceback):
+            for split_line in line.split('\n'):
+                if not split_line:
+                    continue
+                chain.append(split_line)
+
         return (
-            style("".join(traceback.format_tb(exc_traceback)), fg='yellow')
+            '\n'.join(map(lambda line: style(line, fg='yellow'), chain))
+            + '\n'
             + style(f'{exc_class.__name__}: {str(exc_info)}', fg='red')
         )
 
@@ -60,8 +69,8 @@ class DefaultLogger(Logger, metaclass=BorgSingletonMeta):
     pass
 
 
-def make_default_logger(use_ansi: bool) -> DefaultLogger:
-    formatter = ClickFormatter(log_format)
+def make_default_logger(use_ansi: bool, fmt: str = prod_log_format) -> DefaultLogger:
+    formatter = ClickFormatter(fmt)
 
     handler = ClickStreamHandler(use_ansi=use_ansi)
     handler.setLevel(INFO)
@@ -73,9 +82,8 @@ def make_default_logger(use_ansi: bool) -> DefaultLogger:
 
 
 class JobLoggerAdapter(LoggerAdapter):
-    def __init__(self, logger: Logger, job, use_ansi: bool):
-        job_name = job.styled_str() if use_ansi else str(job)
+    def __init__(self, logger: Logger, plain_job_name: str, styled_job_name: str, use_ansi: bool):
         extra = {
-            "job": job_name,
+            "job": styled_job_name if use_ansi else plain_job_name,
         }
         super().__init__(logger=logger, extra=extra)

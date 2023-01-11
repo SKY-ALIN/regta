@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable=missing-docstring, too-few-public-methods, multiple-statements, invalid-name, invalid-overridden-method
+disable=missing-docstring, too-few-public-methods, multiple-statements, invalid-name, invalid-overridden-method, too-many-arguments
 
 [REPORTS]
 score=no
