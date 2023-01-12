@@ -89,13 +89,19 @@ def load_object(uri: str) -> Any:
     return getattr(module, object_name)
 
 
-def run_jobs(jobs: Iterable[JobHint] = (), classes: Iterable[Type[JobHint]] = (), logger: Union[Logger, None] = None):
+def run_jobs(
+        jobs: Iterable[JobHint] = (),
+        classes: Iterable[Type[JobHint]] = (),
+        logger: Union[Logger, None] = None,
+        use_ansi: bool = True,
+):
     """Initializes :class:`regta.Scheduler` and starts passed jobs.
 
     Args:
         jobs: List of job instances.
         classes: List of job classes. Func just will make instances from this.
         logger: If a logger isn`t passed, regta will use std output.
+        use_ansi: Enable / Disable ANSI colors.
 
     Raises:
         ValueError: If jobs or classes weren't passed.
@@ -108,5 +114,5 @@ def run_jobs(jobs: Iterable[JobHint] = (), classes: Iterable[Type[JobHint]] = ()
         job.logger = logger
         scheduler.add_job(job)
     for job_class in classes:
-        scheduler.add_job(job_class(logger=logger))
+        scheduler.add_job(job_class(logger=logger, use_ansi=use_ansi))
     scheduler.run(block=True)

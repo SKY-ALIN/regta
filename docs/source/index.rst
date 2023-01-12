@@ -26,7 +26,7 @@ Core Features
   Create async, thread-based, or process-based jobs depending on your goals.
 
 **Flexible Intervals**
-  Use standard `timedelta` object or specially designed `Period` for highly responsible jobs.
+  Use standard `timedelta` or specially designed `Period` for highly responsible jobs.
 
 **Multi-Paradigm**
   Design OOP styled or functional styled jobs.
