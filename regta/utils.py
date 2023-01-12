@@ -1,6 +1,5 @@
 from typing import Any, Iterable, List, Sequence, Type, Union
 
-from datetime import timedelta
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 import inspect
@@ -11,7 +10,6 @@ import string
 
 import click
 
-from .enums import JobTypes
 from .jobs import JobHint, jobs_classes
 from .schedulers import Scheduler
 
@@ -89,22 +87,6 @@ def load_object(uri: str) -> Any:
     module_name, object_name = uri.split(':')
     module = import_module(module_name)
     return getattr(module, object_name)
-
-
-def make_job_from_dict(job_dict: dict) -> JobHint:
-    kwargs = {
-        "interval": timedelta(**job_dict['interval']),
-        "args": job_dict.get('args', []),
-        "kwargs": job_dict.get('kwargs', {}),
-    }
-    for job_type in JobTypes:
-        if job_type.value in job_dict:
-            return jobs_classes[job_type](execute=job_dict[job_type.value], **kwargs)
-    raise ValueError("Unknown dictionary meaning, impossible to create a job")
-
-
-def make_jobs_from_list(jobs_list: List[dict]) -> List[JobHint]:
-    return [make_job_from_dict(job_dict) for job_dict in jobs_list]
 
 
 def run_jobs(jobs: Iterable[JobHint] = (), classes: Iterable[Type[JobHint]] = (), logger: Union[Logger, None] = None):

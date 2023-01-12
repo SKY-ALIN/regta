@@ -62,8 +62,6 @@ regta run
     Options:
       -P, --path PATH    Path to directory with jobs.  [default: (current
                          directory)]
-      -l, --list TEXT    Path to python file with list of jobs descriptions.
-                         Format: <module>:<list>, example: package.main:JOBS
       -L, --logger TEXT  Path to python file with logger factory. Format:
                          <module>:<logger_factory>, example:
                          package.logger:make_jobs_logger

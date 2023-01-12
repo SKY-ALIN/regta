@@ -18,7 +18,7 @@
 
 
 - **[Multi-Paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
-  or functional styled jobs. Also, Regta provides an interface to reuse already written code by a config.
+  or functional styled jobs.
 
 
 - **[CLI Interface](https://regta.alinsky.tech/cli_reference)** - Regta provides a CLI tool

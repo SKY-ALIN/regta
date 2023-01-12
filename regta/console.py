@@ -1,9 +1,9 @@
 """Lightweight framework to create and execute periodic async and sync jobs on
 different processes, threads, and event loops.
-See details on the homepage at https://github.com/SKY-ALIN/regta/
+See details on the repository on https://github.com/SKY-ALIN/regta/
 """
 
-from typing import Callable, List, Union
+from typing import Callable, Union
 
 from logging import Logger
 from pathlib import Path
@@ -14,7 +14,7 @@ from . import __version__
 from .enums import CodeStyles, JobTypes
 from .logging import empty_log_format, JobLoggerAdapter, make_default_logger, prod_log_format
 from .templates import generate_decorator_styled_job, generate_oop_styled_job
-from .utils import load_jobs, load_object, make_jobs_from_list, run_jobs, show_jobs_info
+from .utils import load_jobs, load_object, run_jobs, show_jobs_info
 
 
 @click.group(help=__doc__)
@@ -31,13 +31,6 @@ def main(): pass
     help='Path to directory with jobs.',
 )
 @click.option(
-    '--list', '-l', 'jobs_list_uri',
-    help=(
-        'Path to python file with a list of jobs descriptions. '
-        'Format: <module>:<list>, example: package.main:JOBS'
-    ),
-)
-@click.option(
     '--logger', '-L', 'logger_uri',
     help=(
         'Path to python file with logger factory. '
@@ -47,21 +40,15 @@ def main(): pass
 @click.option(
     '--verbose', '-V', 'verbose',
     is_flag=True,
-    help="A very detailed summary of what's going on."
+    help="A very detailed summary of what's going on.",
 )
-def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
+def run(path: Path, logger_uri: str, verbose: bool):
     """Starts all jobs."""
 
     use_ansi = True
     prod = True
 
-    jobs = []
-    classes = []
-    if jobs_list_uri:
-        jobs_list: List[dict] = load_object(jobs_list_uri)
-        jobs = make_jobs_from_list(jobs_list)
-    else:
-        classes = load_jobs(path)
+    classes = load_jobs(path)
 
     logger_factory: Union[Callable[[], Logger], None] = load_object(logger_uri) if logger_uri else None
     logger: Logger = (
@@ -76,10 +63,10 @@ def run(path: Path, jobs_list_uri: str, logger_uri: str, verbose: bool):
         use_ansi=use_ansi,
     )
 
-    show_jobs_info(jobs=jobs, classes=classes, verbose=verbose, logger=wrapped_logger, use_ansi=use_ansi)
+    show_jobs_info(classes=classes, verbose=verbose, logger=wrapped_logger, use_ansi=use_ansi)
 
     try:
-        run_jobs(jobs=jobs, classes=classes, logger=logger)
+        run_jobs(classes=classes, logger=logger)
     except ValueError as e:
         wrapped_logger.info(click.style(str(e), fg='red') if use_ansi else str(e))
     else:
