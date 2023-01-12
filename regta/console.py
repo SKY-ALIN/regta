@@ -1,5 +1,4 @@
-"""Lightweight framework to create and execute periodic async and sync jobs on
-different processes, threads, and event loops.
+"""Production-ready scheduler with async, multithreading and multiprocessing support for Python.
 See details on the repository on https://github.com/SKY-ALIN/regta/
 """
 
@@ -42,11 +41,16 @@ def main(): pass
     is_flag=True,
     help="A very detailed summary of what's going on.",
 )
-def run(path: Path, logger_uri: str, verbose: bool):
+@click.option(
+    '--no-ansi', 'disable_ansi',
+    is_flag=True,
+    default=False,
+    help="Disable ANSI colors.",
+)
+def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
     """Starts all jobs."""
 
-    use_ansi = True
-    prod = True
+    use_ansi = not disable_ansi
 
     classes = load_jobs(path)
 
@@ -54,7 +58,7 @@ def run(path: Path, logger_uri: str, verbose: bool):
     logger: Logger = (
         logger_factory()
         if logger_factory
-        else make_default_logger(use_ansi=use_ansi, fmt=(prod_log_format if prod else empty_log_format))
+        else make_default_logger(use_ansi=use_ansi, fmt=prod_log_format)
     )
     wrapped_logger = JobLoggerAdapter(
         logger,
@@ -66,7 +70,7 @@ def run(path: Path, logger_uri: str, verbose: bool):
     show_jobs_info(classes=classes, verbose=verbose, logger=wrapped_logger, use_ansi=use_ansi)
 
     try:
-        run_jobs(classes=classes, logger=logger)
+        run_jobs(classes=classes, logger=logger, use_ansi=use_ansi)
     except ValueError as e:
         wrapped_logger.info(click.style(str(e), fg='red') if use_ansi else str(e))
     else:
@@ -122,11 +126,17 @@ def new(name: str, job_type: str, code_style: str, path: Path):
     type=Path,
     help='Path to directory with jobs.',
 )
-def list_command(path: Path):
+@click.option(
+    '--no-ansi', 'disable_ansi',
+    is_flag=True,
+    default=False,
+    help="Disable ANSI colors.",
+)
+def list_command(path: Path, disable_ansi: bool):
     """Shows the list of found jobs."""
     show_jobs_info(
         classes=load_jobs(path),
         path=path,
         verbose=True,
-        logger=make_default_logger(use_ansi=True, fmt=empty_log_format),
+        logger=make_default_logger(use_ansi=not disable_ansi, fmt=empty_log_format),
     )

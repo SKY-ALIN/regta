@@ -14,7 +14,7 @@
 
 
 - **[Flexible Intervals](https://regta.alinsky.tech/user_guide/interval_types)** - Use standard `timedelta`
-  object or specially designed `Period` for highly responsible jobs.
+  or specially designed `Period` for highly responsible jobs.
 
 
 - **[Multi-Paradigm](https://regta.alinsky.tech/user_guide/oop_style)** - Design OOP styled
