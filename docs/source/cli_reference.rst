@@ -48,6 +48,7 @@ regta list
     Options:
       -P, --path PATH  Path to directory with jobs.  [default: (current
                        directory)]
+      --no-ansi        Disable ANSI colors.
       --help           Show this message and exit.
 
 regta run
@@ -66,4 +67,5 @@ regta run
                          <module>:<logger_factory>, example:
                          package.logger:make_jobs_logger
       -V, --verbose      A very detailed summary of what's going on.
+      --no-ansi          Disable ANSI colors.
       --help             Show this message and exit.

@@ -51,7 +51,6 @@ def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
     """Starts all jobs."""
 
     use_ansi = not disable_ansi
-    prod = True
 
     classes = load_jobs(path)
 
@@ -59,7 +58,7 @@ def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
     logger: Logger = (
         logger_factory()
         if logger_factory
-        else make_default_logger(use_ansi=use_ansi, fmt=(prod_log_format if prod else empty_log_format))
+        else make_default_logger(use_ansi=use_ansi, fmt=prod_log_format)
     )
     wrapped_logger = JobLoggerAdapter(
         logger,
