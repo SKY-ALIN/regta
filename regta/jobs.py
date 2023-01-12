@@ -26,20 +26,17 @@ from .logging import JobLoggerAdapter, make_default_logger
 class AbstractJob(ABC):
     """Interface which every job base implement."""
 
-    interval: Union[timedelta, AbstractPeriod] = NotImplemented
+    interval: Union[timedelta, AbstractPeriod]
     """Interval between every :meth:`.execute` call."""
+    execute: Callable[..., Union[str, None]]
+    """The function on which job will be based. Must be rewritten or passed.
+    It'll be called every :attr:`.interval`.
+    """
 
     @abstractmethod
     def stop(self):
         """Method will be called by the scheduler when regta gets stop
         signal.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def execute(self):
-        """The function on which job will be based. Must be rewritten.
-        It'll be called every :attr:`.interval`.
         """
         raise NotImplementedError
 
@@ -54,9 +51,9 @@ class AbstractJob(ABC):
 class BaseJob(AbstractJob):
     """Base job class which implements common logic."""
 
-    interval: Union[timedelta, AbstractPeriod, None] = None
+    interval: Union[timedelta, AbstractPeriod]
     """Interval between every :meth:`.execute` call."""
-    execute: Union[Callable, None] = None
+    execute: Callable[..., Union[str, None]]
     """The function on which job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
     """
@@ -72,22 +69,12 @@ class BaseJob(AbstractJob):
     def __init__(
             self,
             *args,
-            interval: Union[timedelta, AbstractPeriod, None] = None,
-            execute: Union[Callable, None] = None,
             logger: Union[Logger, None] = None,
             use_ansi: bool = True,
             **kwargs,
     ):
         self.args = args
         self.kwargs = kwargs
-
-        self.interval = interval or self.interval
-        if self.interval is None:
-            raise ValueError("Interval is not specified")
-
-        self.execute = execute or self.execute
-        if self.execute is None:
-            raise ValueError("Execute is not specified")
 
         _logger: Logger = self.logger or logger or make_default_logger(use_ansi=use_ansi)  # type: ignore
         self.logger = JobLoggerAdapter(
@@ -120,10 +107,6 @@ class BaseJob(AbstractJob):
         raise NotImplementedError
 
     @classmethod
-    def __str__(cls):
-        return f"{cls.__module__}:{cls.__name__}"
-
-    @classmethod
     def get_plain_job_name(cls):
         return f"{cls.__module__}:{cls.__name__}"
 
@@ -148,12 +131,11 @@ class BaseSyncJob(BaseJob):
     def __init__(
             self,
             *args,
-            interval: Union[timedelta, AbstractPeriod, None] = None,
-            execute: Union[Callable, None] = None,
             logger: Union[Logger, None] = None,
+            use_ansi: bool = True,
             **kwargs,
     ):
-        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, logger=logger, use_ansi=use_ansi, **kwargs)
         self._blocker = self._blocker_class()
 
     def _execute(self):
@@ -195,13 +177,12 @@ class ProcessJob(BaseSyncJob, Process):
     def __init__(
             self,
             *args,
-            interval: Union[timedelta, AbstractPeriod, None] = None,
-            execute: Union[Callable, None] = None,
             logger: Union[Logger, None] = None,
+            use_ansi: bool = True,
             **kwargs,
     ):
         Process.__init__(self)
-        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, logger=logger, use_ansi=use_ansi, **kwargs)
 
     def stop(self):
         """Stops and terminates job's process. It will be called by the scheduler
@@ -228,13 +209,12 @@ class ThreadJob(BaseSyncJob, Thread):
     def __init__(
             self,
             *args,
-            interval: Union[timedelta, AbstractPeriod, None] = None,
-            execute: Union[Callable, None] = None,
             logger: Union[Logger, None] = None,
+            use_ansi: bool = True,
             **kwargs,
     ):
         Thread.__init__(self)
-        super().__init__(*args, interval=interval, execute=execute, logger=logger, **kwargs)
+        super().__init__(*args, logger=logger, use_ansi=use_ansi, **kwargs)
 
     def stop(self):
         """Stops job's thread. It will be called by the scheduler
@@ -253,7 +233,7 @@ class AsyncJob(BaseJob):
     .. autoattribute:: kwargs
     """
 
-    execute: Union[Callable[..., Awaitable[Union[str, None]]], None] = None
+    execute: Callable[..., Awaitable[Union[str, None]]]  # type: ignore
     """The async function on which job will be based. Must be rewritten or
     passed. It'll be called every :attr:`.interval`.
     """
