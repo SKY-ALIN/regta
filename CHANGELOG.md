@@ -1,6 +1,6 @@
 ## 0.3.0 (in progress)
 * Add `regta-period` package support
-* Remove support for jobs loading sa `--list` param
+* Remove support for jobs loading as `--list` param
 
 ## 0.2.0 (31.3.2022)
 * Add logging
