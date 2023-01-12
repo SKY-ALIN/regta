@@ -29,8 +29,7 @@ Core Features
   Use standard `timedelta` object or specially designed `Period` for highly responsible jobs.
 
 **Multi-Paradigm**
-  Design OOP styled or functional styled jobs. Also, Regta provides an interface to reuse
-  already written code by a config.
+  Design OOP styled or functional styled jobs.
 
 **CLI Interface**
   Regta provides a CLI tool to start, list and create jobs by template.
