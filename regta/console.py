@@ -79,7 +79,7 @@ def main(): pass
     help=no_ansi_param_help,
 )
 def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
-    """Starts all jobs."""
+    """Start all jobs."""
     use_ansi = not disable_ansi
 
     logger, wrapped_logger = _get_loggers(logger_uri, use_ansi, verbose)
@@ -121,7 +121,7 @@ def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
     help=path_param_help,
 )
 def new(name: str, job_type: str, code_style: str, path: Path):
-    """Creates new job by template."""
+    """Create a new job by template."""
     style = CodeStyles(code_style)
     if style is CodeStyles.DECORATOR:
         file_name, class_name = generate_decorator_styled_job(name, JobTypes(job_type), path)
@@ -150,7 +150,7 @@ def new(name: str, job_type: str, code_style: str, path: Path):
     help=no_ansi_param_help,
 )
 def list_command(path: Path, disable_ansi: bool):
-    """Shows the list of found jobs."""
+    """Show the list of found jobs."""
     show_jobs_info(
         classes=load_jobs(path),
         path=path,

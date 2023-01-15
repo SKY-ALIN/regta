@@ -14,9 +14,10 @@ regta
       --help     Show this message and exit.
 
     Commands:
-      list  Shows the list of found jobs.
-      new   Creates new job by template.
-      run   Starts all jobs.
+      execute  Execute a single job once and immediately.
+      list     Show the list of found jobs.
+      new      Create a new job by template.
+      run      Start all jobs.
 
 regta new
 ---------
@@ -25,15 +26,15 @@ regta new
 
     Usage: regta new [OPTIONS] NAME
 
-      Creates new job by template.
+      Create a new job by template.
 
     Options:
       -T, --type [async|thread|process]
                                       Job type. Defines how the job will use
                                       system resources.  [default: thread]
       -S, --style [oop|decorator]     Job code style.  [default: decorator]
-      -P, --path PATH                 Path to which the job file will be created.
-                                      [default: jobs]
+      -P, --path PATH                 Path to directory with jobs.  [default:
+                                      jobs]
       --help                          Show this message and exit.
 
 regta list
@@ -43,7 +44,7 @@ regta list
 
     Usage: regta list [OPTIONS]
 
-      Shows the list of found jobs.
+      Show the list of found jobs.
 
     Options:
       -P, --path PATH  Path to directory with jobs.  [default: (current
@@ -58,14 +59,34 @@ regta run
 
     Usage: regta run [OPTIONS]
 
-      Starts all jobs.
+      Start all jobs.
 
     Options:
       -P, --path PATH    Path to directory with jobs.  [default: (current
                          directory)]
-      -L, --logger TEXT  Path to python file with logger factory. Format:
-                         <module>:<logger_factory>, example:
-                         package.logger:make_jobs_logger
+      -L, --logger TEXT  Path to logger factory in the following format:
+                         <module>:<logger_factory>. Example:
+                         `src.logger:make_jobs_logger`.
+      -V, --verbose      A very detailed summary of what's going on.
+      --no-ansi          Disable ANSI colors.
+      --help             Show this message and exit.
+
+regta execute
+-------------
+
+.. code-block:: none
+
+    Usage: regta execute [OPTIONS] JOB_URI
+
+      Execute a single job once and immediately.
+
+      JOB_URI - path to the job in following format: <module>:<job>. Example:
+      `jobs.database_jobs:make_backup`.
+
+    Options:
+      -L, --logger TEXT  Path to logger factory in the following format:
+                         <module>:<logger_factory>. Example:
+                         `src.logger:make_jobs_logger`.
       -V, --verbose      A very detailed summary of what's going on.
       --no-ansi          Disable ANSI colors.
       --help             Show this message and exit.
