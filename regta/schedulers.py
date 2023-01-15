@@ -1,8 +1,8 @@
 """Contains family of different schedulers.
 
 Use following schedulers to build your system:
-    * :class:`AsyncScheduler` for only :class:`AsyncJob`.
-    * :class:`SyncScheduler` for only sync jobs (:class:`ThreadJob` or :class:`ProcessJob`).
+    * :class:`AsyncScheduler` for only :class:`regta.AsyncJob`.
+    * :class:`SyncScheduler` for only sync jobs (:class:`regta.ThreadJob` or :class:`regta.ProcessJob`).
     * :class:`Scheduler` for all types of jobs (**recommended**).
 """
 

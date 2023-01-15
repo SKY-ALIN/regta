@@ -99,7 +99,7 @@ def run_jobs(
 
     Args:
         jobs: List of job instances.
-        classes: List of job classes. Func just will make instances from this.
+        classes: List of job classes. This func will make instances from them.
         logger: If a logger isn`t passed, regta will use std output.
         use_ansi: Enable / Disable ANSI colors.
 

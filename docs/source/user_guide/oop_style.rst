@@ -19,7 +19,7 @@ Use :class:`regta.AsyncJob` to build a job with this type.
     class MyAsyncJob(AsyncJob):
         interval = timedelta(days=7)
 
-        async def execute(self):
+        async def func(self):
             return f"Hello from {self.__class__.__name__}!"
 
 
@@ -37,7 +37,7 @@ Use :class:`regta.ThreadJob` to build a job with this type.
     class MyThreadBasedJob(ThreadJob):
         interval = timedelta(hours=1)
 
-        def execute(self):
+        def func(self):
             return f"Hello from {self.__class__.__name__}!"
 
 
@@ -55,7 +55,7 @@ Use :class:`regta.ProcessJob` to build a job with this type.
     class MyProcessBasedJob(ThreadJob):
         interval = timedelta(hours=24)
 
-        def execute(self):
+        def func(self):
             return f"Hello from {self.__class__.__name__}!"
 
 
