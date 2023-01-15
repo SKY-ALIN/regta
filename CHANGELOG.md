@@ -2,6 +2,8 @@
 * Add `regta-period` package support
 * Remove support for jobs loading as `--list` param
 * Add `--no-ansi` flag to `regta run` and `regta list` commands
+* Add `regta execute` command
+* Set DEBUG level to logger if verbose flag is set
 
 ## 0.2.0 (31.3.2022)
 * Add logging
