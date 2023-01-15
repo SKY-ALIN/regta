@@ -5,6 +5,7 @@ See details at the repository on \n https://github.com/SKY-ALIN/regta/
 from typing import Callable, Tuple, Type, Union
 
 import asyncio
+import logging
 from logging import Logger
 from pathlib import Path
 
@@ -28,13 +29,19 @@ job_type_param_help = "Job type. Defines how the job will use system resources."
 code_style_param_help = "Job code style."
 
 
-def _get_loggers(logger_uri: str, use_ansi: bool) -> Tuple[Logger, JobLoggerAdapter]:
+def _get_loggers(logger_uri: str, use_ansi: bool, verbose: bool) -> Tuple[Logger, JobLoggerAdapter]:
     logger_factory: Union[Callable[[], Logger], None] = load_object(logger_uri) if logger_uri else None
     logger: Logger = (
         logger_factory()
         if logger_factory
         else make_default_logger(use_ansi=use_ansi, fmt=prod_log_format)
     )
+
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+        for handler in logger.handlers:
+            handler.setLevel(logging.DEBUG)
+
     wrapped_logger = JobLoggerAdapter(
         logger,
         plain_job_name='regta',
@@ -61,7 +68,7 @@ def main(): pass
     '--logger', '-L', 'logger_uri',
     help=logger_param_help,
 )
-@click.option(  # todo: Set logging level as DEBUG if verbose is set
+@click.option(
     '--verbose', '-V', 'verbose',
     is_flag=True,
     help=verbose_param_help,
@@ -75,7 +82,7 @@ def run(path: Path, logger_uri: str, disable_ansi: bool, verbose: bool):
     """Starts all jobs."""
     use_ansi = not disable_ansi
 
-    logger, wrapped_logger = _get_loggers(logger_uri, use_ansi)
+    logger, wrapped_logger = _get_loggers(logger_uri, use_ansi, verbose)
 
     classes = load_jobs(path)
 
@@ -158,7 +165,7 @@ def list_command(path: Path, disable_ansi: bool):
     '--logger', '-L', 'logger_uri',
     help=logger_param_help,
 )
-@click.option(  # todo: Set logging level as DEBUG if verbose is set
+@click.option(
     '--verbose', '-V', 'verbose',
     is_flag=True,
     help=verbose_param_help,
@@ -175,7 +182,7 @@ def execute(job_uri: str, logger_uri: str, verbose: bool, disable_ansi: bool):
     """
     use_ansi = not disable_ansi
 
-    logger, wrapped_logger = _get_loggers(logger_uri, use_ansi)
+    logger, wrapped_logger = _get_loggers(logger_uri, use_ansi, verbose)
 
     job_class: Type[JobHint] = load_object(job_uri)
     job: JobHint = job_class(logger=logger, use_ansi=use_ansi)
