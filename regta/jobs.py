@@ -1,9 +1,9 @@
 """Contains bases of different job types.
 
 You can use the following entities to build your jobs:
-    * Class :class:`AsyncJob` or :class:`async_job` decorator
-    * Class :class:`ThreadJob` or :class:`thread_job` decorator
-    * Class :class:`ProcessJob` or :class:`process_job` decorator
+    * Class :class:`AsyncJob` or :class:`regta.async_job` decorator
+    * Class :class:`ThreadJob` or :class:`regta.thread_job` decorator
+    * Class :class:`ProcessJob` or :class:`regta.process_job` decorator
 """
 
 from typing import Awaitable, Callable, Dict, Iterable, Type, Union
@@ -27,11 +27,25 @@ class AbstractJob(ABC):
     """Interface which every job base implement."""
 
     interval: Union[timedelta, AbstractPeriod]
-    """Interval between every :meth:`.execute` call."""
-    execute: Callable[..., Union[str, None]]
-    """The function on which job will be based. Must be rewritten or passed.
+    """Interval between every :meth:`.func` call."""
+    func: Callable[..., Union[str, None]]
+    """The function on which the job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
     """
+
+    @abstractmethod
+    def execute(self):
+        """Execute :attr:`.func` and log result/error.
+        It will be called by the job every :attr:`.interval`.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def run(self):
+        """Method will be called by scheduler when regta starts. It'll
+        call :attr:`.func` every :attr:`.interval`.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def stop(self):
@@ -40,31 +54,24 @@ class AbstractJob(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def run(self):
-        """Method will be called by scheduler when regta starts. It'll
-        call :meth:`.execute` every :attr:`.interval`.
-        """
-        raise NotImplementedError
-
 
 class BaseJob(AbstractJob):
     """Base job class which implements common logic."""
 
     interval: Union[timedelta, AbstractPeriod]
-    """Interval between every :meth:`.execute` call."""
-    execute: Callable[..., Union[str, None]]
+    """Interval between every :meth:`.func` call."""
+    func: Callable[..., Union[str, None]]
     """The function on which job will be based. Must be rewritten or passed.
     It'll be called every :attr:`.interval`.
     """
     logger: Union[Logger, LoggerAdapter, None] = None
-    """Logger writes all results of :attr:`.execute` function and
+    """Logger writes all results of :attr:`.func` function and
     its exceptions. If the logger isn't specified, regta will use std output.
     """
     args: Iterable = []
-    """Args will be passed into :attr:`.execute`."""
+    """Args will be passed into :attr:`.func`."""
     kwargs: dict = {}
-    """Key-word args will be passed into :attr:`.execute`."""
+    """Key-word args will be passed into :attr:`.func`."""
 
     def __init__(
             self,
@@ -96,10 +103,11 @@ class BaseJob(AbstractJob):
         raise ValueError(f"Regta doesn't support '{self.interval.__class__.__name__}' type for interval.")
 
     @abstractmethod
+    def execute(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def run(self):
-        """Method will be called by scheduler when regta starts. It'll
-        call :attr:`.execute` every :attr:`.interval`.
-        """
         raise NotImplementedError
 
     @abstractmethod
@@ -120,7 +128,7 @@ class BaseSyncJob(BaseJob):
     :class:`ProcessJob` blocking.
 
     .. autoattribute:: interval
-    .. autoattribute:: execute
+    .. autoattribute:: func
     .. autoattribute:: logger
     .. autoattribute:: args
     .. autoattribute:: kwargs
@@ -138,9 +146,9 @@ class BaseSyncJob(BaseJob):
         super().__init__(*args, logger=logger, use_ansi=use_ansi, **kwargs)
         self._blocker = self._blocker_class()
 
-    def _execute(self):
+    def execute(self):
         try:
-            res = self.execute(*self.args, **self.kwargs)
+            res = self.func(*self.args, **self.kwargs)
             self.logger.info(res)
         except Exception as e:  # pylint: disable=broad-except
             self.logger.exception(e)
@@ -154,7 +162,7 @@ class BaseSyncJob(BaseJob):
 
     def run(self):
         while not self.__block():
-            self._execute()
+            self.execute()
 
     @abstractmethod
     def stop(self):
@@ -165,11 +173,12 @@ class ProcessJob(BaseSyncJob, Process):
     """Sync job class based on a process.
 
     .. autoattribute:: interval
-    .. autoattribute:: execute
+    .. autoattribute:: func
     .. autoattribute:: logger
     .. autoattribute:: args
     .. autoattribute:: kwargs
-    .. automethod:: regta.ProcessJob.run
+    .. automethod:: execute
+    .. automethod:: run
     """
 
     _blocker_class = ProcessEventFabric
@@ -197,11 +206,12 @@ class ThreadJob(BaseSyncJob, Thread):
     """Sync job class based on a thread.
 
     .. autoattribute:: interval
-    .. autoattribute:: execute
+    .. autoattribute:: func
     .. autoattribute:: logger
     .. autoattribute:: args
     .. autoattribute:: kwargs
-    .. automethod:: regta.ThreadJob.run
+    .. automethod:: execute
+    .. automethod:: run
     """
 
     _blocker_class = ThreadEvent
@@ -233,14 +243,14 @@ class AsyncJob(BaseJob):
     .. autoattribute:: kwargs
     """
 
-    execute: Callable[..., Awaitable[Union[str, None]]]  # type: ignore
-    """The async function on which job will be based. Must be rewritten or
-    passed. It'll be called every :attr:`.interval`.
+    func: Callable[..., Awaitable[Union[str, None]]]  # type: ignore
+    """The function on which the job will be based. Must be rewritten or passed.
+    It'll be called every :attr:`.interval`.
     """
 
-    async def _execute(self):
+    async def execute(self):
         try:
-            res = await self.execute(*self.args, **self.kwargs)
+            res = await self.func(*self.args, **self.kwargs)
             self.logger.info(res)
         except Exception as e:  # pylint: disable=broad-except
             self.logger.exception(e)
@@ -248,7 +258,7 @@ class AsyncJob(BaseJob):
     async def run(self):
         while True:
             await asyncio.sleep(self._get_seconds_till_to_execute())
-            await self._execute()
+            await self.execute()
 
     async def stop(self): pass
 
@@ -264,7 +274,7 @@ def _make_decorator(_class: Type[JobHint]):
                 (_class,),
                 {
                     "__module__": func.__module__,
-                    "execute": staticmethod(func),
+                    "func": staticmethod(func),
                     "interval": interval,
                     "args": args,
                     "kwargs": kwargs,
@@ -276,7 +286,7 @@ def _make_decorator(_class: Type[JobHint]):
 
 async_job = _make_decorator(AsyncJob)
 async_job.__doc__ = (
-    """Decorator makes :class:`AsyncJob` from async function.
+    """Make :class:`AsyncJob` from async function.
 
     Args:
         interval: Interval between every call.
@@ -286,7 +296,7 @@ async_job.__doc__ = (
 )
 thread_job = _make_decorator(ThreadJob)
 thread_job.__doc__ = (
-    """Decorator makes :class:`ThreadJob` from function.
+    """Make :class:`ThreadJob` from function.
 
     Args:
         interval: Interval between every call.
@@ -296,7 +306,7 @@ thread_job.__doc__ = (
 )
 process_job = _make_decorator(ProcessJob)
 process_job.__doc__ = (
-    """Decorator makes :class:`ProcessJob` from function.
+    """Make :class:`ProcessJob` from function.
 
     Args:
         interval: Interval between every call.
