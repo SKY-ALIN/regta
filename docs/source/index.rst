@@ -47,6 +47,7 @@ Check :ref:`quick-start` to start
 
    self
    User Guide <user_guide/index>
+   scheduling_alternatives
    api_reference
    cli_reference
 
