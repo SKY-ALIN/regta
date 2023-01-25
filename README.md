@@ -28,6 +28,9 @@
 - **[Professional Logging](https://regta.alinsky.tech/user_guide/logging)** - Redefine standard logger
   and define your own. ANSI coloring is supported.
 
+You may discover scheduling alternatives and find the comparison with Regta on 
+[regta.alinsky.tech/alternatives](https://regta.alinsky.tech/alternatives)
+
 ---
 
 ### Installation
