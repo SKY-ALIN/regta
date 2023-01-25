@@ -22,7 +22,7 @@ logger_param_help = (
     "Path to logger factory in the following format: "
     "<module>:<logger_factory>. Example: `src.logger:make_jobs_logger`."
 )
-verbose_param_help = "A very detailed summary of what's going on."
+verbose_param_help = "Set DEBUG level to logger."
 no_ansi_param_help = "Disable ANSI colors."
 path_param_help = "Path to directory with jobs."
 job_type_param_help = "Job type. Defines how the job will use system resources."

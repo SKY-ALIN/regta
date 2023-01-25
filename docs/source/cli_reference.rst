@@ -67,7 +67,7 @@ regta run
       -L, --logger TEXT  Path to logger factory in the following format:
                          <module>:<logger_factory>. Example:
                          `src.logger:make_jobs_logger`.
-      -V, --verbose      A very detailed summary of what's going on.
+      -V, --verbose      Set DEBUG level to logger.
       --no-ansi          Disable ANSI colors.
       --help             Show this message and exit.
 
@@ -87,6 +87,6 @@ regta execute
       -L, --logger TEXT  Path to logger factory in the following format:
                          <module>:<logger_factory>. Example:
                          `src.logger:make_jobs_logger`.
-      -V, --verbose      A very detailed summary of what's going on.
+      -V, --verbose      Set DEBUG level to logger.
       --no-ansi          Disable ANSI colors.
       --help             Show this message and exit.
