@@ -11,7 +11,7 @@ Cron is the most popular general-purpose scheduler in the world.
 This scheduler is universal and lets start jobs as a shell command.
 Take note that Cron starts a separate process for every job and
 this may take a lot of system resources.
-With Cron you can't use asynchronous programming.
+With Cron you also can't use asynchronous programming.
 So, Cron might be the best scheduling variant for internal automation
 when you have a need to write jobs in different programming languages.
 
@@ -57,8 +57,12 @@ Read more about `Periodic Tasks in Celery <celery_periodic_tasks_>`_.
 |apscheduler|_
 --------------
 
-/Benefits. DB caching. Complexity./
+APScheduler is a powerful tool with the same benefits as Regta.
+The difference is only that Regta uses `moment-independent approach <moment_independence_>`_ to get
+restart tolerance ability, but APScheduler uses an external database to cache executing time.
+This is the reason why APScheduler might be more complex to configure because you have to manage a database.
 
+.. _moment_independence: https://github.com/SKY-ALIN/regta-period
 .. _apscheduler: https://apscheduler.readthedocs.io/
 .. |apscheduler| replace:: APScheduler
 
@@ -66,7 +70,7 @@ Read more about `Periodic Tasks in Celery <celery_periodic_tasks_>`_.
 Conclusion
 ----------
 
-/What is the benefits of Regta comparing with others. What is disadvantages os others./
+Finally, you may compare them by the following table:
 
 .. role:: plus
 .. role:: minus
@@ -123,3 +127,6 @@ Conclusion
      - :plus:`Low`
      - :minus:`High`
      - :minus:`High`
+
+So, if your goal is **internal automation with python** only e.g. sending regular Slack notifications,
+making backups, sending internal emails and so on, **Regta might be the best variant** for you.
