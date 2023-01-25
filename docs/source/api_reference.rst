@@ -45,6 +45,22 @@ Scheduler
    :members:
    :show-inheritance:
 
+AbstractPeriod
+^^^^^^^^^^^^^^
+.. autoclass:: regta.AbstractPeriod
+
+Period
+^^^^^^
+.. autoclass:: regta.Period
+
+PeriodAggregation
+^^^^^^^^^^^^^^^^^
+.. autoclass:: regta.PeriodAggregation
+
+Weekdays
+^^^^^^^^
+.. autoclass:: regta.Weekdays
+
 
 regta.jobs
 ----------
