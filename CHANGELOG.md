@@ -1,4 +1,4 @@
-## 0.3.0 (in progress)
+## 0.3.0 (27.01.2023)
 * Add `regta-period` package support
 * Remove support for jobs loading as `--list` param
 * Add `--no-ansi` flag to `regta run` and `regta list` commands
