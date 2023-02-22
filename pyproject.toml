@@ -43,7 +43,7 @@ regta-period = "^0.2.0"
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"
 flake8 = "^5.0.4"
-pylint = "^2.16.1"
+pylint = "^2.16.2"
 Sphinx = "^4"
 furo = "^2022.9.29"
 m2r2 = "^0.3.2"
